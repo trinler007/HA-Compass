@@ -1,5 +1,7 @@
 // ====================================================================
 // PARAMETRISCHES WOHNMOBIL-GEHÄUSE FÜR ESP32-S3 & MMC5603
+// v3.2: Einbauvarianten "laengs" und "quer" (Parameter einbau),
+//       zweiter Deckel mit Pfeil "FRONT" zur langen Seite
 // v3.1: Sensor quer (X-Pfeil in Gehäuselängsrichtung)
 // v3: Sensor-Halterung (Messing-Einschmelzmuttern), Befestigungs-
 //     flansch, Lüftungsschlitze, Fahrtrichtungspfeil,
@@ -28,10 +30,20 @@ pcb_breite  = 17.8;
 loch_abst_l = 20.32;   // Lochmitte zu Lochmitte, entlang der Längsseite
 loch_abst_b = 12.7;    // Lochmitte zu Lochmitte, entlang der Schmalseite
 
-// 0  = Platinen-Längsseite parallel zur Gehäuse-Längsachse
-// 90 = Platine quer eingebaut
-// So wählen, dass der aufgedruckte X-Pfeil entlang der Gehäuselänge liegt.
-sensor_drehung  = 90;  // Adafruit #5579: X-Pfeil quer zur langen Platinenkante
+// --------------------------------------------------------------------
+// EINBAUVARIANTE
+//   "laengs" = Gehäuse-Längsachse in Fahrtrichtung (Stirnseite nach vorne)
+//   "quer"   = Gehäuse quer zur Fahrtrichtung (lange Seite nach vorne);
+//              die lange Anschlagkante erleichtert die genaue Ausrichtung
+// Steuert die Lage der Sensorplatine und den Deckel (Pfeil "FRONT").
+// --------------------------------------------------------------------
+einbau = "laengs";
+
+// Auf dem Adafruit #5579 steht der X-Pfeil quer zur langen Platinenkante.
+// Der X-Pfeil muss immer zur Fahrzeugfront zeigen, daher:
+//   laengs -> Platine quer im Gehäuse (90°), X entlang der Gehäuselänge
+//   quer   -> Platine längs im Gehäuse (0°),  X entlang der Gehäusebreite
+sensor_drehung  = (einbau == "quer") ? 0 : 90;
 abstand_endwand = 8;   // Platz zur Stirnwand (STEMMA-Stecker / Kabelbogen)
 
 standoff_hoehe = 5;
@@ -72,8 +84,11 @@ schlitz_b       = 2;
 schlitz_l       = 18;
 schlitze_je_ende = 3;
 
+// Nur Variante "laengs":
 // true  = Sensor-Ende (gegenüber USB) zeigt zur Fahrzeugfront
 // false = USB-/ESP-Ende zeigt zur Fahrzeugfront
+// (Variante "quer": Pfeil zeigt zu einer Längsseite; Deckel und Sensor
+//  lassen sich um 180° gedreht montieren.)
 vorne_ist_sensorseite = false;
 
 // --------------------------------------------------------------------
@@ -171,7 +186,7 @@ module pfeil() {
     }
 }
 
-module deckel() {
+module deckel(variante = einbau) {
     difference() {
         // Deckelplatte (Außenseite liegt auf dem Druckbett, z = 0)
         cube([aussen_laenge, aussen_breite, wandstaerke]);
@@ -193,24 +208,40 @@ module deckel() {
                     cube([schlitz_b, schlitz_l, wandstaerke + 2]);
         }
 
-        // Fahrtrichtungspfeil + "VORNE" auf der Außenseite eingraviert
+        // Fahrtrichtungspfeil + "FRONT" auf der Außenseite eingraviert
         // (von außen lesbar, daher gespiegelt)
         translate([aussen_laenge / 2, aussen_breite / 2, -0.01])
             linear_extrude(height = 0.8)
                 mirror([0, 1, 0])
-                    rotate([0, 0, vorne_ist_sensorseite ? 0 : 180]) {
-                        translate([+15, 0]) pfeil();
-                        translate([-23, 0])
-                            text("FRONT", size = 6, halign = "center", valign = "center",
-                                 font = "Liberation Sans:style=Bold");
-                    }
+                    pfeil_markierung(variante);
+    }
+}
+
+// Markierung je Einbauvariante (2D, Ursprung = Deckelmitte)
+module pfeil_markierung(variante) {
+    if (variante == "quer") {
+        // Pfeil zeigt zur langen Seite (quer über den Deckel), Schrift daneben
+        translate([14, 0]) rotate([0, 0, 90]) scale(0.7) pfeil();
+        translate([-14, 0])
+            text("FRONT", size = 6, halign = "center", valign = "center",
+                 font = "Liberation Sans:style=Bold");
+    } else {
+        // Pfeil zeigt zur Stirnseite (entlang des Deckels)
+        rotate([0, 0, vorne_ist_sensorseite ? 0 : 180]) {
+            translate([+15, 0]) pfeil();
+            translate([-23, 0])
+                text("FRONT", size = 6, halign = "center", valign = "center",
+                     font = "Liberation Sans:style=Bold");
+        }
     }
 }
 
 // --------------------------------------------------------------------
-// Rendert beide Teile nebeneinander im Slicer
+// Rendert Gehäuse und passenden Deckel nebeneinander im Slicer.
+// Variante oben über "einbau" wählen ("laengs" oder "quer").
+// Gehäuse und Deckel unterscheiden sich nur in Platinenlage bzw. Pfeil.
 // --------------------------------------------------------------------
 hauptgehaeuse();
 
 translate([0, aussen_breite + flansch_breite + 10, 0])
-    deckel();
+    deckel(einbau);

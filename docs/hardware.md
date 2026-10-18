@@ -38,11 +38,23 @@ Datei: [`hardware/gehaeuse/camper-kompass-gehaeuse.scad`](../hardware/gehaeuse/c
 
 - Innenmaß 130 × 45 × 28 mm, Wandstärke 2,5 mm, Druck in PETG oder ASA
 - 4 Abstandshalter (5 mm) mit Einschmelzmuttern M2,5 für den MMC5603
-- `sensor_drehung = 90`: Die Platine liegt quer, weil der X-Pfeil auf dem Adafruit-Board quer zur langen Platinenkante steht. So liegt X in Gehäuse-Längsrichtung.
 - 4 Ecksäulen mit Einschmelzmuttern M3, Deckel verschraubt
 - Befestigungsflansch mit 4 Löchern am Gehäuseboden
 - Lüftungsschlitze im Deckel gegen Kondenswasser
-- Pfeil „FRONT“ im Deckel; `vorne_ist_sensorseite` legt fest, welches Ende zur Fahrzeugfront zeigt
+- Pfeil „FRONT“ im Deckel
+
+### Einbauvarianten
+
+Der Parameter `einbau` wählt die Variante. Gehäuse und Deckel unterscheiden sich nur in der Lage der Sensorplatine und im Pfeil:
+
+| `einbau` | Gehäuse im Fahrzeug | Sensorplatine | Pfeil „FRONT“ im Deckel |
+| --- | --- | --- | --- |
+| `"laengs"` | Längsachse in Fahrtrichtung | quer (90°) | zur Stirnseite; `vorne_ist_sensorseite` wählt, welche |
+| `"quer"` | quer zur Fahrtrichtung, lange Seite nach vorne | längs (0°) | zu einer Längsseite |
+
+Hintergrund: Auf dem Adafruit-Board steht der X-Pfeil quer zur langen Platinenkante, und X muss immer zur Fahrzeugfront zeigen.
+Beim Quereinbau dient die lange Gehäusekante als Anschlag – damit lässt sich das Gehäuse genauer rechtwinklig zur Fahrzeugachse ausrichten.
+Deckel und Sensorplatine lassen sich jeweils um 180° gedreht montieren; entscheidend ist nur, dass Deckelpfeil und X-Pfeil auf der Platine in dieselbe Richtung zeigen.
 
 Heißkleber nur für den ESP oder als Zugentlastung verwenden – **nicht** für den Sensor. Unter der GfK-Decke wird es im Sommer warm genug, dass Heißkleber kriecht, und jede Lageänderung des Sensors nach der Kalibrierung verfälscht die Ausrichtung.
 
