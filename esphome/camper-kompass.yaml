@@ -201,15 +201,14 @@ sensor:
             send_every: 1
 
   # --- Werte aus Home Assistant -------------------------------------
-  # Achtung Namensgebung: Die Entitäten sind gegenüber der üblichen
-  # Konvention vertauscht benannt – Zuordnung erfolgt nach Wirkung:
+  # Neigung aus dem Wasserwaagen-Sensor (im Koffer verbaut)
   - platform: homeassistant
-    id: tilt_front_up          # + = Front höher  (Nicken)
-    entity_id: sensor.technik_wasserwaage_truck_roll
+    id: tilt_front_up          # Pitch/Nicken: + = Front höher
+    entity_id: sensor.technik_wasserwaage_truck_pitch
     internal: true
   - platform: homeassistant
-    id: tilt_left_up           # + = Fahrerseite (links) höher (Rollen)
-    entity_id: sensor.technik_wasserwaage_truck_pitch
+    id: tilt_left_up           # Roll/Rollen: + = Fahrerseite (links) höher
+    entity_id: sensor.technik_wasserwaage_truck_roll
     internal: true
 
   - platform: homeassistant

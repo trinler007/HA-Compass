@@ -48,8 +48,8 @@ Der Kompass liefert die Ausrichtung des Fahrzeugs in Grad – magnetisch und geo
 
 | Entität | Zweck |
 | --- | --- |
-| `sensor.technik_wasserwaage_truck_roll` | + = Front höher (wird als **Nicken** verwendet) |
-| `sensor.technik_wasserwaage_truck_pitch` | + = Fahrerseite höher (wird als **Rollen** verwendet) |
+| `sensor.technik_wasserwaage_truck_pitch` | Nicken: + = Front höher |
+| `sensor.technik_wasserwaage_truck_roll` | Rollen: + = Fahrerseite (links) höher |
 | `sensor.nx_01_position_gps_course` | GPS-Kurs über Grund |
 | `sensor.nx_01_position_gps_speed` | Geschwindigkeit in km/h |
 | `sensor.technik_nx01_gw01_gps_genauigkeit_hdop` | GPS-Genauigkeit |
