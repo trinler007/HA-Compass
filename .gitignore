@@ -1,0 +1,6 @@
+secrets.yaml
+.esphome/
+*.stl
+*.3mf
+*.gcode
+.DS_Store

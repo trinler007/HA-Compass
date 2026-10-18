@@ -1,0 +1,517 @@
+# =====================================================================
+#  Camper Kompass – ESP32-S3 + MMC5603
+#  Neigungskompensation (Wasserwaage aus HA) + automatischer GPS-Abgleich
+# =====================================================================
+
+substitutions:
+  name: camper-kompass
+  friendly_name: Camper Kompass
+
+  # Achsen-Vorzeichen des Sensors – Prüfung in EINBAULAGE (docs/inbetriebnahme.md)
+  # Internes Koordinatensystem: X = vorne, Y = rechts, Z = unten
+  y_sign: "1.0"
+  z_sign: "1.0"
+
+  # Vertikalkomponente des Erdfelds am Ort der Z-Kalibrierung in µT
+  # (Kempten ca. 43,5 µT – exakter Wert: NOAA Magnetic Field Calculator)
+  vertical_field_ut: "43.5"
+
+  # Startwert für die Korrektur magnetisch -> geografisch in Grad
+  # (Missweisung Allgäu ca. +4°; wird durch den GPS-Abgleich überschrieben)
+  offset_default: "4.0"
+
+  # Bedingungen für den GPS-Abgleich
+  gps_min_speed: "30.0"   # km/h
+  gps_max_hdop: "2.0"
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+
+# Flash-schonend: gesammelte Änderungen alle 5 min schreiben.
+# Kalibrierungen werden zusätzlich sofort per sync() gesichert.
+preferences:
+  flash_write_interval: 5min
+
+logger:
+
+api:
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Kompass Fallback"
+    password: !secret kompass_ap_password
+
+i2c:
+  sda: GPIO11
+  scl: GPIO12
+  scan: true
+
+# ---------------------------------------------------------------------
+#  Globale Variablen
+# ---------------------------------------------------------------------
+globals:
+  # Hard-Iron-/Skalierungs-Kalibrierung X/Y (Fahrzeugkoordinaten)
+  - id: cal_x_min
+    type: float
+    restore_value: yes
+    initial_value: "-30.0"
+  - id: cal_x_max
+    type: float
+    restore_value: yes
+    initial_value: "30.0"
+  - id: cal_y_min
+    type: float
+    restore_value: yes
+    initial_value: "-30.0"
+  - id: cal_y_max
+    type: float
+    restore_value: yes
+    initial_value: "30.0"
+
+  # Sicherung für Rollback bei ungültiger Kalibrierfahrt
+  - id: bak_x_min
+    type: float
+    initial_value: "0.0"
+  - id: bak_x_max
+    type: float
+    initial_value: "0.0"
+  - id: bak_y_min
+    type: float
+    initial_value: "0.0"
+  - id: bak_y_max
+    type: float
+    initial_value: "0.0"
+
+  - id: is_calibrating
+    type: bool
+    initial_value: "false"
+
+  # Z-Offset (Hard-Iron der Z-Achse)
+  - id: z_offset
+    type: float
+    restore_value: yes
+    initial_value: "0.0"
+  - id: z_sum
+    type: float
+    initial_value: "0.0"
+  - id: z_cnt
+    type: int
+    initial_value: "0"
+
+  # Korrektur magnetisch -> geografisch als Einheitsvektor (für sauberes Mitteln über 0/360°)
+  - id: off_sin
+    type: float
+    restore_value: yes
+    initial_value: "sinf(${offset_default} * M_PI / 180.0f)"
+  - id: off_cos
+    type: float
+    restore_value: yes
+    initial_value: "cosf(${offset_default} * M_PI / 180.0f)"
+  - id: align_n
+    type: int
+    restore_value: yes
+    initial_value: "0"
+
+  # Laufzeitwerte
+  - id: hdg_sin
+    type: float
+    initial_value: "0.0"
+  - id: hdg_cos
+    type: float
+    initial_value: "1.0"
+  - id: hdg_valid
+    type: bool
+    initial_value: "false"
+  - id: hdg_mag
+    type: float
+    initial_value: "NAN"
+  - id: prev_course
+    type: float
+    initial_value: "NAN"
+  - id: prev_hdg
+    type: float
+    initial_value: "NAN"
+  - id: stable_cnt
+    type: int
+    initial_value: "0"
+
+# ---------------------------------------------------------------------
+#  Sensoren
+# ---------------------------------------------------------------------
+sensor:
+  - platform: mmc5603
+    address: 0x30
+    auto_set_reset: true
+    update_interval: 0.2s
+
+    field_strength_x:
+      id: raw_x
+      name: "Magnetfeld X roh"
+      entity_category: diagnostic
+      disabled_by_default: true
+      filters:
+        - median:
+            window_size: 5
+            send_every: 1
+      on_value:
+        then:
+          - lambda: |-
+              if (id(is_calibrating)) {
+                if (x < id(cal_x_min)) id(cal_x_min) = x;
+                if (x > id(cal_x_max)) id(cal_x_max) = x;
+              }
+
+    field_strength_y:
+      id: raw_y
+      name: "Magnetfeld Y roh"
+      entity_category: diagnostic
+      disabled_by_default: true
+      filters:
+        - median:
+            window_size: 5
+            send_every: 1
+      on_value:
+        then:
+          - lambda: |-
+              if (id(is_calibrating)) {
+                float v = ${y_sign} * x;
+                if (v < id(cal_y_min)) id(cal_y_min) = v;
+                if (v > id(cal_y_max)) id(cal_y_max) = v;
+              }
+
+    field_strength_z:
+      id: raw_z
+      name: "Magnetfeld Z roh"
+      entity_category: diagnostic
+      disabled_by_default: true
+      filters:
+        - median:
+            window_size: 5
+            send_every: 1
+
+  # --- Werte aus Home Assistant -------------------------------------
+  # Achtung Namensgebung: Die Entitäten sind gegenüber der üblichen
+  # Konvention vertauscht benannt – Zuordnung erfolgt nach Wirkung:
+  - platform: homeassistant
+    id: tilt_front_up          # + = Front höher  (Nicken)
+    entity_id: sensor.technik_wasserwaage_truck_roll
+    internal: true
+  - platform: homeassistant
+    id: tilt_left_up           # + = Fahrerseite (links) höher (Rollen)
+    entity_id: sensor.technik_wasserwaage_truck_pitch
+    internal: true
+
+  - platform: homeassistant
+    id: gps_course
+    entity_id: sensor.nx_01_position_gps_course
+    internal: true
+  - platform: homeassistant
+    id: gps_speed
+    entity_id: sensor.nx_01_position_gps_speed
+    internal: true
+  - platform: homeassistant
+    id: gps_hdop
+    entity_id: sensor.technik_nx01_gw01_gps_genauigkeit_hdop
+    internal: true
+
+  # --- Ausgaben --------------------------------------------------------
+  - platform: template
+    id: heading_mag_sensor
+    name: "Ausrichtung magnetisch"
+    unit_of_measurement: "°"
+    icon: mdi:compass-outline
+    accuracy_decimals: 1
+    update_interval: never
+    filters:
+      - throttle: 1s
+
+  - platform: template
+    id: heading_true_sensor
+    name: "Ausrichtung geografisch"
+    unit_of_measurement: "°"
+    icon: mdi:compass
+    accuracy_decimals: 1
+    update_interval: never
+    filters:
+      - throttle: 1s
+
+  - platform: template
+    id: corr_sensor
+    name: "Kompass Korrektur"
+    unit_of_measurement: "°"
+    icon: mdi:angle-acute
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never
+    filters:
+      - throttle: 10s
+
+  - platform: template
+    id: align_n_sensor
+    name: "GPS-Abgleich Messpunkte"
+    icon: mdi:counter
+    accuracy_decimals: 0
+    entity_category: diagnostic
+    update_interval: never
+    filters:
+      - throttle: 10s
+
+  # Kalibrierte Horizontalfeldstärke: sollte konstant ~21 µT sein.
+  # Sprünge = Störquelle (z. B. Verbraucher eingeschaltet).
+  - platform: template
+    id: hfield_sensor
+    name: "Horizontalfeld"
+    unit_of_measurement: "µT"
+    icon: mdi:magnet
+    accuracy_decimals: 1
+    entity_category: diagnostic
+    update_interval: never
+    filters:
+      - throttle_average: 5s
+
+# ---------------------------------------------------------------------
+binary_sensor:
+  - platform: template
+    name: "Kompass Kalibrierung läuft"
+    lambda: "return id(is_calibrating);"
+
+  - platform: homeassistant
+    id: nmea_ok
+    entity_id: binary_sensor.technik_nx01_gw01_nmea_tcp_status
+    internal: true
+
+# ---------------------------------------------------------------------
+switch:
+  - platform: template
+    id: tilt_comp
+    name: "Neigungskompensation"
+    icon: mdi:angle-acute
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    entity_category: config
+
+  - platform: template
+    id: gps_align
+    name: "GPS-Abgleich"
+    icon: mdi:crosshairs-gps
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    entity_category: config
+
+# ---------------------------------------------------------------------
+button:
+  - platform: template
+    name: "Kompass Kalibrierung starten"
+    icon: mdi:compass-rose
+    on_press:
+      - script.execute: kalibrierung
+
+  - platform: template
+    name: "Kompass Kalibrierung beenden"
+    icon: mdi:stop-circle-outline
+    on_press:
+      - lambda: "id(is_calibrating) = false;"
+
+  - platform: template
+    name: "Kompass Z-Offset ermitteln"
+    icon: mdi:axis-z-arrow
+    entity_category: config
+    on_press:
+      - script.execute: z_offset_messen
+
+  - platform: template
+    name: "GPS-Abgleich zurücksetzen"
+    icon: mdi:restore
+    entity_category: config
+    on_press:
+      - lambda: |-
+          id(off_sin) = sinf(${offset_default} * M_PI / 180.0f);
+          id(off_cos) = cosf(${offset_default} * M_PI / 180.0f);
+          id(align_n) = 0;
+          id(stable_cnt) = 0;
+          global_preferences->sync();
+          ESP_LOGI("kompass", "GPS-Abgleich auf Startwert %.1f° zurückgesetzt", ${offset_default});
+
+# ---------------------------------------------------------------------
+script:
+  # Kreisfahrt: Start-Button -> langsam 360°+ fahren -> Stopp-Button
+  # (Sicherheits-Timeout 3 min). Ungültige Fahrten werden verworfen.
+  - id: kalibrierung
+    mode: single
+    then:
+      - lambda: |-
+          id(bak_x_min) = id(cal_x_min); id(bak_x_max) = id(cal_x_max);
+          id(bak_y_min) = id(cal_y_min); id(bak_y_max) = id(cal_y_max);
+          float bx = id(raw_x).state;
+          float by = ${y_sign} * id(raw_y).state;
+          if (std::isnan(bx) || std::isnan(by)) {
+            ESP_LOGW("kompass", "Kalibrierung nicht gestartet: keine Sensordaten");
+            id(cal_x_min) = id(cal_x_max) = id(cal_y_min) = id(cal_y_max) = 0.0f;
+            return;
+          }
+          id(cal_x_min) = id(cal_x_max) = bx;
+          id(cal_y_min) = id(cal_y_max) = by;
+          id(is_calibrating) = true;
+          ESP_LOGI("kompass", "Kalibrierung gestartet – jetzt langsam mindestens einen vollen Kreis fahren");
+      - wait_until:
+          condition:
+            lambda: "return !id(is_calibrating);"
+          timeout: 180s
+      - lambda: |-
+          id(is_calibrating) = false;
+          float rx = (id(cal_x_max) - id(cal_x_min)) / 2.0f;
+          float ry = (id(cal_y_max) - id(cal_y_min)) / 2.0f;
+          float ratio = (ry > 0.0f) ? rx / ry : 0.0f;
+          if (rx > 10.0f && ry > 10.0f && ratio > 0.7f && ratio < 1.4f) {
+            ESP_LOGI("kompass", "Kalibrierung OK: Offset X=%.1f Y=%.1f µT, Radius X=%.1f Y=%.1f µT",
+                     (id(cal_x_max) + id(cal_x_min)) / 2.0f, (id(cal_y_max) + id(cal_y_min)) / 2.0f, rx, ry);
+          } else {
+            ESP_LOGW("kompass", "Kalibrierung verworfen (Radius X=%.1f Y=%.1f µT) – Kreis unvollständig? Alte Werte bleiben aktiv.", rx, ry);
+            id(cal_x_min) = id(bak_x_min); id(cal_x_max) = id(bak_x_max);
+            id(cal_y_min) = id(bak_y_min); id(cal_y_max) = id(bak_y_max);
+          }
+          id(hdg_valid) = false;
+          global_preferences->sync();
+
+  # Einmalig zu Hause auf ebenem Grund (|Nicken| und |Rollen| < 1,5°)
+  - id: z_offset_messen
+    mode: single
+    then:
+      - lambda: |-
+          id(z_sum) = 0.0f;
+          id(z_cnt) = 0;
+      - repeat:
+          count: 20
+          then:
+            - lambda: |-
+                float p = id(tilt_front_up).state, q = id(tilt_left_up).state, z = id(raw_z).state;
+                if (!std::isnan(z) && !std::isnan(p) && !std::isnan(q) &&
+                    std::fabs(p) < 1.5f && std::fabs(q) < 1.5f) {
+                  id(z_sum) += ${z_sign} * z;
+                  id(z_cnt)++;
+                }
+            - delay: 0.5s
+      - lambda: |-
+          if (id(z_cnt) < 15) {
+            ESP_LOGW("kompass", "Z-Offset nicht ermittelt: Fahrzeug nicht eben genug oder keine Neigungsdaten");
+            return;
+          }
+          id(z_offset) = id(z_sum) / id(z_cnt) - ${vertical_field_ut};
+          ESP_LOGI("kompass", "Z-Offset gespeichert: %.1f µT", id(z_offset));
+          global_preferences->sync();
+
+# ---------------------------------------------------------------------
+interval:
+  # Kompass-Berechnung
+  - interval: 0.5s
+    then:
+      - lambda: |-
+          const float D2R = M_PI / 180.0f, R2D = 180.0f / M_PI;
+          if (id(is_calibrating)) return;
+          float mx = id(raw_x).state, my = id(raw_y).state, mz = id(raw_z).state;
+          if (std::isnan(mx) || std::isnan(my) || std::isnan(mz)) return;
+
+          // Fahrzeugkoordinaten: X vorne, Y rechts, Z unten
+          float bx = mx;
+          float by = ${y_sign} * my;
+          float bz = ${z_sign} * mz;
+
+          // Hard-Iron-Offset + Skalierung
+          float rx = (id(cal_x_max) - id(cal_x_min)) / 2.0f;
+          float ry = (id(cal_y_max) - id(cal_y_min)) / 2.0f;
+          if (rx < 1.0f || ry < 1.0f) return;
+          float r  = (rx + ry) / 2.0f;
+          float cx = (bx - (id(cal_x_max) + id(cal_x_min)) / 2.0f) * r / rx;
+          float cy = (by - (id(cal_y_max) + id(cal_y_min)) / 2.0f) * r / ry;
+          float cz = bz - id(z_offset);
+
+          // Neigungskompensation: th = Nicken (Front hoch +), ph = Rollen (rechts tief +)
+          float th = 0.0f, ph = 0.0f;
+          if (id(tilt_comp).state) {
+            float p = id(tilt_front_up).state, q = id(tilt_left_up).state;
+            if (!std::isnan(p) && !std::isnan(q) && std::fabs(p) < 30.0f && std::fabs(q) < 30.0f) {
+              th = p * D2R;
+              ph = q * D2R;
+            }
+          }
+          float hx = cx * cosf(th) + cy * sinf(th) * sinf(ph) + cz * sinf(th) * cosf(ph);
+          float hy = cy * cosf(ph) - cz * sinf(ph);
+          float h  = atan2f(-hy, hx);
+
+          // Glättung über Sinus/Kosinus (kein Sprung bei 0/360°)
+          const float a = 0.3f;
+          if (!id(hdg_valid)) {
+            id(hdg_sin) = sinf(h); id(hdg_cos) = cosf(h); id(hdg_valid) = true;
+          } else {
+            id(hdg_sin) = (1.0f - a) * id(hdg_sin) + a * sinf(h);
+            id(hdg_cos) = (1.0f - a) * id(hdg_cos) + a * cosf(h);
+          }
+          float mag = atan2f(id(hdg_sin), id(hdg_cos)) * R2D;
+          if (mag < 0.0f) mag += 360.0f;
+          id(hdg_mag) = mag;
+
+          float corr = atan2f(id(off_sin), id(off_cos)) * R2D;
+          float tru  = fmodf(mag + corr + 360.0f, 360.0f);
+
+          id(heading_mag_sensor).publish_state(mag);
+          id(heading_true_sensor).publish_state(tru);
+          id(corr_sensor).publish_state(corr);
+          id(hfield_sensor).publish_state(sqrtf(hx * hx + hy * hy));
+
+  # GPS-Abgleich während der Fahrt
+  - interval: 1s
+    then:
+      - lambda: |-
+          auto wrap = [](float v) {
+            while (v > 180.0f) v -= 360.0f;
+            while (v < -180.0f) v += 360.0f;
+            return v;
+          };
+          const float D2R = M_PI / 180.0f, R2D = 180.0f / M_PI;
+          id(align_n_sensor).publish_state(id(align_n));
+
+          if (!id(gps_align).state || id(is_calibrating) || !id(nmea_ok).state) {
+            id(stable_cnt) = 0;
+            return;
+          }
+          // Ohne Fix liefert die Integration "unknown" -> NaN, daher kein eigener Fix-Check nötig
+          float crs = id(gps_course).state, spd = id(gps_speed).state;
+          float hdop = id(gps_hdop).state, hdg = id(hdg_mag);
+          if (std::isnan(crs) || std::isnan(spd) || std::isnan(hdop) || std::isnan(hdg) ||
+              spd < ${gps_min_speed} || hdop > ${gps_max_hdop}) {
+            id(stable_cnt) = 0;
+            id(prev_course) = crs;
+            id(prev_hdg) = hdg;
+            return;
+          }
+
+          // Nur echte Geradeausfahrt: GPS-Kurs und Kompass ruhig
+          bool steady = !std::isnan(id(prev_course)) && !std::isnan(id(prev_hdg)) &&
+                        std::fabs(wrap(crs - id(prev_course))) < 1.5f &&
+                        std::fabs(wrap(hdg - id(prev_hdg))) < 2.0f;
+          id(prev_course) = crs;
+          id(prev_hdg) = hdg;
+          if (!steady) { id(stable_cnt) = 0; return; }
+          if (++id(stable_cnt) < 5) return;
+
+          float diff = wrap(crs - hdg);
+          float corr = atan2f(id(off_sin), id(off_cos)) * R2D;
+          if (id(align_n) > 30 && std::fabs(wrap(diff - corr)) > 20.0f) return;  // Ausreißer
+
+          // Anfangs schnell, später träge (min. 1 %) mitteln
+          float k = 1.0f / (id(align_n) + 1);
+          if (k < 0.01f) k = 0.01f;
+          id(off_sin) = (1.0f - k) * id(off_sin) + k * sinf(diff * D2R);
+          id(off_cos) = (1.0f - k) * id(off_cos) + k * cosf(diff * D2R);
+          if (id(align_n) < 100000) id(align_n)++;
