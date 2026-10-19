@@ -59,7 +59,7 @@ Der Kompass liefert die Ausrichtung des Fahrzeugs in Grad – magnetisch und geo
 
 - [x] Hardware aufgebaut, Firmware kompiliert und geflasht
 - [x] Gehäuse konstruiert
-- [ ] Werkbanktests
+- [x] Werkbanktests (Einheit µT, Gesamtfeld ≈ 45–55 µT, Rauschen ±0,25 µT, Kalibrierlogik inkl. Rollback)
 - [ ] Einbau im Fahrzeug, Achsen-Vorzeichen in Einbaulage geprüft
 - [ ] Z-Offset, Kreisfahrt-Kalibrierung, erste Fahrt mit GPS-Abgleich
 - [ ] Dashboard (Ziel 2)
