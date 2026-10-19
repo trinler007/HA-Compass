@@ -29,15 +29,18 @@
 
 ### Neigungssensor SCL3300 (SPI)
 
-| SCL3300-D01-PCB | ESP32-S3 | Funktion |
-| --- | --- | --- |
-| J2 AVDD | 3V3 | Versorgung analog |
-| J1 DVIO | 3V3 | Versorgung digital/IO (nie höher als AVDD) |
-| J2 AVSS, J1 DVSS | GND | Masse |
-| J2 SCK | GPIO 13 | SPI-Takt |
-| J2 MOSI | GPIO 14 | Daten ESP → Sensor |
-| J2 MISO | GPIO 15 | Daten Sensor → ESP |
-| J2 CSB | GPIO 16 | Chip Select |
+| Ader | ESP32-S3 | SCL3300-D01-PCB | Farbe (NX-01) | Funktion |
+| --- | --- | --- | --- | --- |
+| 1 | 3V3 | J2 AVDD | rot | Versorgung analog |
+| 2 | 3V3 | J1 DVIO | braun | Versorgung digital/IO (nie höher als AVDD) |
+| 3 | GND | J2 AVSS | schwarz | Masse analog |
+| 4 | GND | J1 DVSS | weiß | Masse digital |
+| 5 | GPIO 13 | J2 SCK | grau | SPI-Takt |
+| 6 | GPIO 14 | J2 MOSI | lila | Daten ESP → Sensor |
+| 7 | GPIO 15 | J2 MISO | blau | Daten Sensor → ESP |
+| 8 | GPIO 16 | J2 CSB | grün | Chip Select |
+
+Am Kompass der NX-01 sind die Adern am ESP angelötet und enden in Dupont-Buchsen; der Sensor wird nur noch aufgesteckt.
 
 Die Platine hat keinen Spannungsregler – **niemals an 5 V**. Achsen laut Aufdruck: X entlang der langen Kante, Y entlang der kurzen, Z aus der Bauteilseite.
 
