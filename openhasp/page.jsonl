@@ -1,0 +1,29 @@
+// Seite 9: Kompass (HA Compass)
+{"page": 9, "id": 0, "prev": 6, "next": 1, "bg_color": "#2C3E50"}
+{"page": 9, "id": 1, "obj": "img", "src": "L:/terminal01-bg.png", "auto_size": 1, "h": 480, "w": 480, "zoom": 256, "x": 0, "y": 0, "swipe": 1, "to_back": 1}
+{"page": 9, "id": 2, "obj": "obj", "x": 35, "y": 92, "w": 290, "h": 290, "radius": 145, "bg_color": "#1F2A36", "border_width": 2, "border_color": "#3C5268", "click": 0}
+{"page": 9, "id": 3, "obj": "linemeter", "x": 37, "y": 94, "w": 286, "h": 286, "angle": 360, "line_count": 72, "min": 0, "max": 100, "val": 100, "scale_width": 8, "line_width": 2, "line_color": "#B7C9D8", "scale_end_color": "#B7C9D8", "scale_grad_color": "#B7C9D8", "bg_opa": 0, "border_width": 0, "click": 0}
+{"page": 9, "id": 4, "obj": "arc", "x": 20, "y": 77, "w": 320, "h": 320, "start_angle": 14, "end_angle": 166, "start_angle10": 14, "end_angle10": 100, "line_width": 6, "line_color": "#F59E0B", "line_opa": 90, "line_rounded": 1, "line_width10": 6, "line_color10": "#F59E0B", "line_rounded10": 1, "bg_opa": 0, "border_width": 0, "pad_top": 0, "pad_bottom": 0, "pad_left": 0, "pad_right": 0, "bg_opa20": 0, "pad_top20": 0, "pad_bottom20": 0, "pad_left20": 0, "pad_right20": 0, "click": 0}
+{"page": 9, "id": 10, "obj": "label", "x": 167, "y": 102, "w": 26, "h": 26, "text": "N", "align": 1, "text_font": 20, "text_color": "#EF4444", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 11, "obj": "label", "x": 289, "y": 224, "w": 26, "h": 26, "text": "O", "align": 1, "text_font": 20, "text_color": "#FFFFFF", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 12, "obj": "label", "x": 167, "y": 346, "w": 26, "h": 26, "text": "S", "align": 1, "text_font": 20, "text_color": "#FFFFFF", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 13, "obj": "label", "x": 45, "y": 224, "w": 26, "h": 26, "text": "W", "align": 1, "text_font": 20, "text_color": "#FFFFFF", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 20, "obj": "img", "src": "L:/nx01.png", "x": 82, "y": 139, "w": 196, "h": 196, "zoom": 256, "angle": 0, "click": 0}
+{"page": 9, "id": 21, "obj": "label", "x": 170, "y": 57, "w": 20, "h": 16, "text": "\u25bc", "align": 1, "text_font": 16, "text_color": "#FFFFFF", "bg_opa": 0, "hidden": 1, "click": 0}
+{"page": 9, "id": 22, "obj": "obj", "x": 0, "y": 0, "w": 20, "h": 20, "radius": 10, "bg_color": "#FBBF24", "border_width": 3, "border_color": "#2C3E50", "click": 0}
+{"page": 9, "id": 23, "obj": "obj", "x": 0, "y": 0, "w": 16, "h": 16, "radius": 8, "bg_color": "#CBD5E1", "border_width": 3, "border_color": "#2C3E50", "click": 0}
+{"page": 9, "id": 30, "obj": "label", "x": 348, "y": 70, "w": 120, "h": 24, "text": "Ausrichtung", "align": 0, "text_font": 16, "text_color": "#B7C9D8", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 31, "obj": "label", "x": 348, "y": 90, "w": 120, "h": 38, "text": "---\u00b0", "align": 0, "text_font": 30, "text_color": "#FFFFFF", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 32, "obj": "label", "x": 348, "y": 124, "w": 120, "h": 33, "text": "--", "align": 0, "text_font": 25, "text_color": "#B7C9D8", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 33, "obj": "label", "x": 348, "y": 168, "w": 24, "h": 24, "text": "\udb81\udd99", "align": 0, "text_font": "mdi20", "text_color": "#FBBF24", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 34, "obj": "label", "x": 374, "y": 166, "w": 96, "h": 28, "text": "---\u00b0 --\u00b0", "align": 0, "text_font": 20, "text_color": "#FFFFFF", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 35, "obj": "label", "x": 348, "y": 196, "w": 24, "h": 24, "text": "\udb81\udd9c", "align": 0, "text_font": "mdi20", "text_color": "#B7C9D8", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 36, "obj": "label", "x": 374, "y": 194, "w": 96, "h": 28, "text": "--:--", "align": 0, "text_font": 20, "text_color": "#FFFFFF", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 37, "obj": "label", "x": 348, "y": 222, "w": 24, "h": 24, "text": "\udb81\udd9b", "align": 0, "text_font": "mdi20", "text_color": "#B7C9D8", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 38, "obj": "label", "x": 374, "y": 220, "w": 96, "h": 28, "text": "--:--", "align": 0, "text_font": 20, "text_color": "#FFFFFF", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 39, "obj": "label", "x": 348, "y": 256, "w": 24, "h": 24, "text": "\udb81\udd94", "align": 0, "text_font": "mdi20", "text_color": "#CBD5E1", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 40, "obj": "label", "x": 374, "y": 254, "w": 96, "h": 28, "text": "---\u00b0 --%", "align": 0, "text_font": 20, "text_color": "#FFFFFF", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 41, "obj": "label", "x": 348, "y": 292, "w": 120, "h": 24, "text": "Schatten", "align": 0, "text_font": 16, "text_color": "#B7C9D8", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 42, "obj": "label", "x": 348, "y": 310, "w": 120, "h": 28, "text": "--", "align": 0, "text_font": 20, "text_color": "#FFFFFF", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 43, "obj": "label", "x": 348, "y": 336, "w": 120, "h": 24, "text": "", "align": 0, "text_font": 16, "text_color": "#B7C9D8", "bg_opa": 0, "click": 0}
+{"page": 9, "id": 44, "obj": "btn", "x": 344, "y": 366, "w": 124, "h": 40, "text": "Ansicht", "text_font": 18, "text_color": "#FFFFFF", "bg_color": "#3C5268", "radius": 10, "border_side": 0, "toggle": false}

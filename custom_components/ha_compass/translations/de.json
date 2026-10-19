@@ -1,0 +1,102 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HA Compass",
+        "description": "Entität mit der geografischen Fahrzeugausrichtung (0–360°).",
+        "data": {
+          "heading_entity": "Ausrichtung"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "HA Compass",
+        "description": "Entität mit der geografischen Fahrzeugausrichtung (0–360°).",
+        "data": {
+          "heading_entity": "Ausrichtung"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "sonne_azimut": {
+        "name": "Sonne Azimut"
+      },
+      "sonne_hoehe": {
+        "name": "Sonne Höhe"
+      },
+      "daemmerung_beginn": {
+        "name": "Dämmerung Beginn"
+      },
+      "sonnenaufgang": {
+        "name": "Sonnenaufgang"
+      },
+      "sonnenmittag": {
+        "name": "Sonnenmittag"
+      },
+      "sonnenuntergang": {
+        "name": "Sonnenuntergang"
+      },
+      "daemmerung_ende": {
+        "name": "Dämmerung Ende"
+      },
+      "mond_azimut": {
+        "name": "Mond Azimut"
+      },
+      "mond_hoehe": {
+        "name": "Mond Höhe"
+      },
+      "mond_beleuchtung": {
+        "name": "Mond Beleuchtung"
+      },
+      "mond_phase": {
+        "name": "Mondphase",
+        "state": {
+          "neumond": "Neumond",
+          "zunehmende_sichel": "Zunehmende Sichel",
+          "erstes_viertel": "Erstes Viertel",
+          "zunehmender_mond": "Zunehmender Mond",
+          "vollmond": "Vollmond",
+          "abnehmender_mond": "Abnehmender Mond",
+          "letztes_viertel": "Letztes Viertel",
+          "abnehmende_sichel": "Abnehmende Sichel"
+        }
+      },
+      "mondaufgang": {
+        "name": "Mondaufgang"
+      },
+      "monduntergang": {
+        "name": "Monduntergang"
+      },
+      "sonne_relativ": {
+        "name": "Sonne relativ zum Bug"
+      },
+      "schattenseite": {
+        "name": "Schattenseite",
+        "state": {
+          "links": "Links (Fahrerseite)",
+          "rechts": "Rechts (Beifahrerseite)",
+          "front": "Front",
+          "heck": "Heck",
+          "keine": "Keine (Sonne unter Horizont)"
+        }
+      }
+    },
+    "select": {
+      "ansicht": {
+        "name": "Ansicht",
+        "state": {
+          "fahrzeug_dreht": "Fahrzeug dreht",
+          "ring_dreht": "Ring dreht"
+        }
+      }
+    }
+  }
+}

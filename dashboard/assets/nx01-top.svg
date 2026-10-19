@@ -30,9 +30,9 @@
     <rect x="8" y="8" width="229" height="208" rx="14" fill="#5f6249" stroke="#2f3126" stroke-width="2"/>
     <rect x="22" y="22" width="201" height="180" rx="10" fill="#7c8277" stroke="#4b4f43" stroke-width="1.5"/>
     <!-- Dachprofil mit Sicken (mittig) -->
-    <rect x="70" y="34" width="105" height="156" rx="10" fill="#80867b" stroke="#62675b" stroke-width="2"/>
-    <rect x="78" y="42" width="89" height="140" rx="7" fill="#868c81" stroke="#5c6155" stroke-width="1.5"/>
-    <rect x="85" y="49" width="75" height="126" rx="5" fill="#8a9085" stroke="#6b7064" stroke-width="1"/>
+    <rect x="44.5" y="59.5" width="156" height="105" rx="10" fill="#80867b" stroke="#62675b" stroke-width="2"/>
+    <rect x="52.5" y="67.5" width="140" height="89" rx="7" fill="#868c81" stroke="#5c6155" stroke-width="1.5"/>
+    <rect x="59.5" y="74.5" width="126" height="75" rx="5" fill="#8a9085" stroke="#6b7064" stroke-width="1"/>
 
     <!-- Übergang -->
     <rect x="30" y="216" width="185" height="14" fill="#2a2c23"/>

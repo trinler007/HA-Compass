@@ -1,0 +1,102 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HA Compass",
+        "description": "Entity with the vehicle's true heading (0–360°).",
+        "data": {
+          "heading_entity": "Heading"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "HA Compass",
+        "description": "Entity with the vehicle's true heading (0–360°).",
+        "data": {
+          "heading_entity": "Heading"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "sonne_azimut": {
+        "name": "Sun azimuth"
+      },
+      "sonne_hoehe": {
+        "name": "Sun elevation"
+      },
+      "daemmerung_beginn": {
+        "name": "Dawn"
+      },
+      "sonnenaufgang": {
+        "name": "Sunrise"
+      },
+      "sonnenmittag": {
+        "name": "Solar noon"
+      },
+      "sonnenuntergang": {
+        "name": "Sunset"
+      },
+      "daemmerung_ende": {
+        "name": "Dusk"
+      },
+      "mond_azimut": {
+        "name": "Moon azimuth"
+      },
+      "mond_hoehe": {
+        "name": "Moon elevation"
+      },
+      "mond_beleuchtung": {
+        "name": "Moon illumination"
+      },
+      "mond_phase": {
+        "name": "Moon phase",
+        "state": {
+          "neumond": "New moon",
+          "zunehmende_sichel": "Waxing crescent",
+          "erstes_viertel": "First quarter",
+          "zunehmender_mond": "Waxing gibbous",
+          "vollmond": "Full moon",
+          "abnehmender_mond": "Waning gibbous",
+          "letztes_viertel": "Last quarter",
+          "abnehmende_sichel": "Waning crescent"
+        }
+      },
+      "mondaufgang": {
+        "name": "Moonrise"
+      },
+      "monduntergang": {
+        "name": "Moonset"
+      },
+      "sonne_relativ": {
+        "name": "Sun relative to bow"
+      },
+      "schattenseite": {
+        "name": "Shaded side",
+        "state": {
+          "links": "Left (driver side)",
+          "rechts": "Right (passenger side)",
+          "front": "Front",
+          "heck": "Rear",
+          "keine": "None (sun below horizon)"
+        }
+      }
+    },
+    "select": {
+      "ansicht": {
+        "name": "View",
+        "state": {
+          "fahrzeug_dreht": "Vehicle rotates",
+          "ring_dreht": "Ring rotates"
+        }
+      }
+    }
+  }
+}

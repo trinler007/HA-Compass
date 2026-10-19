@@ -24,6 +24,9 @@ Der Kompass liefert die Ausrichtung des Fahrzeugs in Grad – magnetisch und geo
 ## Repository-Struktur
 
 ```
+├── custom_components/ha_compass/   HA-Integration: Sonne, Mond, Schattenseite, Ansicht
+├── openhasp/                       openHASP-Seite 480 × 480
+├── dashboard/                      Fahrzeuggrafik, Konzept
 ├── esphome/
 │   ├── camper-kompass.yaml        ESPHome-Konfiguration
 │   └── secrets.example.yaml       Vorlage für secrets.yaml
@@ -44,6 +47,23 @@ Der Kompass liefert die Ausrichtung des Fahrzeugs in Grad – magnetisch und geo
 3. `esphome/camper-kompass.yaml` kompilieren und flashen.
 4. Inbetriebnahme nach [docs/inbetriebnahme.md](docs/inbetriebnahme.md) – Reihenfolge einhalten.
 
+## Integration HA Compass
+
+Über HACS als benutzerdefiniertes Repository (Typ *Integration*) hinzufügen, installieren, HA neu starten,
+dann *Einstellungen → Geräte & Dienste → Integration hinzufügen → HA Compass*. Abgefragt wird nur die Entität der Ausrichtung.
+
+Gerechnet wird mit der HA-Heimatposition (im Fahrzeug per GPS nachgeführt).
+
+| Entität | Inhalt |
+| --- | --- |
+| `sensor.ha_compass_sonne_azimut` / `_hoehe` | Sonnenposition |
+| `sensor.ha_compass_daemmerung_beginn`, `_sonnenaufgang`, `_sonnenmittag`, `_sonnenuntergang`, `_daemmerung_ende` | Zeiten des Tages; Auf-/Untergang mit Attribut `azimut` |
+| `sensor.ha_compass_mond_azimut` / `_hoehe` / `_beleuchtung` / `_phase` | Mondposition und -phase |
+| `sensor.ha_compass_mondaufgang` / `_monduntergang` | Mondzeiten des Tages |
+| `sensor.ha_compass_sonne_relativ` | Sonnenwinkel zum Bug, −180…180°, + = rechts |
+| `sensor.ha_compass_schattenseite` | `links`, `rechts`, `front`, `heck`, `keine` |
+| `select.ha_compass_ansicht` | `fahrzeug_dreht` / `ring_dreht` |
+
 ## Voraussetzungen in Home Assistant
 
 | Entität | Zweck |
@@ -62,4 +82,6 @@ Der Kompass liefert die Ausrichtung des Fahrzeugs in Grad – magnetisch und geo
 - [x] Werkbanktests (Einheit µT, Gesamtfeld ≈ 45–55 µT, Rauschen ±0,25 µT, Kalibrierlogik inkl. Rollback)
 - [ ] Einbau im Fahrzeug, Achsen-Vorzeichen in Einbaulage geprüft
 - [ ] Z-Offset, Kreisfahrt-Kalibrierung, erste Fahrt mit GPS-Abgleich
-- [ ] Dashboard (Ziel 2)
+- [x] Integration HA Compass (Sonne, Mond, Schattenseite, Ansicht)
+- [x] openHASP-Seite
+- [ ] Lovelace-Karte (ersetzt Horizon Card)

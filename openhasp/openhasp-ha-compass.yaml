@@ -1,0 +1,76 @@
+# In configuration.yaml unter der vorhandenen openHASP-Platte ergänzen:
+openhasp:
+  terminal01:
+    objects:
+      - obj: "p9b4"
+        properties:
+          "start_angle": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{% set rot = 0 if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else -h %}{{ (((state_attr('sensor.ha_compass_sonnenaufgang','azimut')|float(90))+rot-90) % 360)|round|int }}"
+          "end_angle": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{% set rot = 0 if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else -h %}{{ (((state_attr('sensor.ha_compass_sonnenuntergang','azimut')|float(270))+rot-90) % 360)|round|int }}"
+          "start_angle10": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{% set rot = 0 if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else -h %}{{ (((state_attr('sensor.ha_compass_sonnenaufgang','azimut')|float(90))+rot-90) % 360)|round|int }}"
+          "end_angle10": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{% set rot = 0 if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else -h %}{% set e = states('sensor.ha_compass_sonne_hoehe')|float(-90) %}{{ ((((states('sensor.ha_compass_sonne_azimut')|float(0)) if e > 0 else (state_attr('sensor.ha_compass_sonnenaufgang','azimut')|float(90)))+rot-90) % 360)|round|int }}"
+      - obj: "p9b10"
+        properties:
+          "x": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{% set rot = 0 if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else -h %}{{ (180 + 122*sin((0+rot)*pi/180) - 13)|round|int }}"
+          "y": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{% set rot = 0 if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else -h %}{{ (237 - 122*cos((0+rot)*pi/180) - 13)|round|int }}"
+      - obj: "p9b11"
+        properties:
+          "x": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{% set rot = 0 if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else -h %}{{ (180 + 122*sin((90+rot)*pi/180) - 13)|round|int }}"
+          "y": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{% set rot = 0 if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else -h %}{{ (237 - 122*cos((90+rot)*pi/180) - 13)|round|int }}"
+      - obj: "p9b12"
+        properties:
+          "x": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{% set rot = 0 if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else -h %}{{ (180 + 122*sin((180+rot)*pi/180) - 13)|round|int }}"
+          "y": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{% set rot = 0 if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else -h %}{{ (237 - 122*cos((180+rot)*pi/180) - 13)|round|int }}"
+      - obj: "p9b13"
+        properties:
+          "x": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{% set rot = 0 if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else -h %}{{ (180 + 122*sin((270+rot)*pi/180) - 13)|round|int }}"
+          "y": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{% set rot = 0 if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else -h %}{{ (237 - 122*cos((270+rot)*pi/180) - 13)|round|int }}"
+      - obj: "p9b20"
+        properties:
+          "angle": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{{ (h*10)|round|int if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else 0 }}"
+      - obj: "p9b21"
+        properties:
+          "hidden": "{{ 1 if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else 0 }}"
+      - obj: "p9b22"
+        properties:
+          "x": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{% set rot = 0 if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else -h %}{{ (180 + 160*sin((states('sensor.ha_compass_sonne_azimut')|float(0)+rot)*pi/180) - 10)|round|int }}"
+          "y": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{% set rot = 0 if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else -h %}{{ (237 - 160*cos((states('sensor.ha_compass_sonne_azimut')|float(0)+rot)*pi/180) - 10)|round|int }}"
+          "hidden": "{{ 1 if states('sensor.ha_compass_sonne_hoehe')|float(-90) <= 0 else 0 }}"
+      - obj: "p9b23"
+        properties:
+          "x": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{% set rot = 0 if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else -h %}{{ (180 + 160*sin((states('sensor.ha_compass_mond_azimut')|float(0)+rot)*pi/180) - 8)|round|int }}"
+          "y": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{% set rot = 0 if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else -h %}{{ (237 - 160*cos((states('sensor.ha_compass_mond_azimut')|float(0)+rot)*pi/180) - 8)|round|int }}"
+          "hidden": "{{ 1 if states('sensor.ha_compass_mond_hoehe')|float(-90) <= 0 else 0 }}"
+      - obj: "p9b31"
+        properties:
+          "text": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{{ '%d°' % (h|round|int % 360) }}"
+      - obj: "p9b32"
+        properties:
+          "text": "{% set h = states('sensor.camper_kompass_ausrichtung_geografisch')|float(0) %}{{ ['N','NNO','NO','ONO','O','OSO','SO','SSO','S','SSW','SW','WSW','W','WNW','NW','NNW'][((h+11.25)/22.5)|int % 16] }}"
+      - obj: "p9b34"
+        properties:
+          "text": "{{ '%d° %d°' % (states('sensor.ha_compass_sonne_azimut')|float(0)|round|int, states('sensor.ha_compass_sonne_hoehe')|float(-90)|round|int) }}"
+      - obj: "p9b36"
+        properties:
+          "text": "{{ as_timestamp(states('sensor.ha_compass_sonnenaufgang'), 0)|timestamp_custom('%H:%M') if has_value('sensor.ha_compass_sonnenaufgang') else '--:--' }}"
+      - obj: "p9b38"
+        properties:
+          "text": "{{ as_timestamp(states('sensor.ha_compass_sonnenuntergang'), 0)|timestamp_custom('%H:%M') if has_value('sensor.ha_compass_sonnenuntergang') else '--:--' }}"
+      - obj: "p9b40"
+        properties:
+          "text": "{{ '%d° %d%%' % (states('sensor.ha_compass_mond_azimut')|float(0)|round|int, states('sensor.ha_compass_mond_beleuchtung')|float(0)|round|int) }}"
+      - obj: "p9b42"
+        properties:
+          "text": "{{ {'links':'Fahrerseite','rechts':'Beifahrerseite','front':'Front','heck':'Heck','keine':'Nacht'}.get(states('sensor.ha_compass_schattenseite'), '--') }}"
+      - obj: "p9b43"
+        properties:
+          "text": "{% set r = states('sensor.ha_compass_sonne_relativ')|float(0) %}{{ ('Sonne %d° ' % (r|abs|round|int)) ~ ('rechts' if r > 0 else 'links') if has_value('sensor.ha_compass_sonne_relativ') else '' }}"
+      - obj: "p9b44"
+        properties:
+          "text": "{{ 'Fahrzeug dreht' if is_state('select.ha_compass_ansicht','fahrzeug_dreht') else 'Ring dreht' }}"
+        event:
+          "up":
+            - action: select.select_next
+              target:
+                entity_id: select.ha_compass_ansicht
+              data:
+                cycle: true
