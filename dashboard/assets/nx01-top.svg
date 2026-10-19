@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -6 269 711" width="269" height="711">
+  <!--
+    Enterprise NX-01 · IVECO Magirus 90-16 AW · Draufsicht
+    Maßstab 1 px = 10 mm (L 6990 × B 2450 mm). Front zeigt nach oben (0° = Fahrtrichtung).
+    Drehpunkt für die Kompassdarstellung: Mitte (122.5, 349.5).
+    Nachgezeichnet nach Drohnenaufnahmen; Türen/Klappen geschlossen.
+  -->
+  <defs>
+    <pattern id="cells" width="12.1" height="11.7" patternUnits="userSpaceOnUse">
+      <rect width="12.1" height="11.7" fill="#1b2232"/>
+      <path d="M12.1 0V11.7M0 11.7H12.1" stroke="#2c3850" stroke-width="0.8"/>
+    </pattern>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5b7189"/>
+      <stop offset="1" stop-color="#34465a"/>
+    </linearGradient>
+  </defs>
+
+  <g stroke-linejoin="round">
+    <!-- Spiegel -->
+    <rect x="-10" y="34" width="12" height="26" rx="3" fill="#3f4134" stroke="#262820" stroke-width="1.5"/>
+    <rect x="243" y="34" width="12" height="26" rx="3" fill="#3f4134" stroke="#262820" stroke-width="1.5"/>
+
+    <!-- Stoßstange -->
+    <rect x="12" y="-4" width="221" height="16" rx="4" fill="#3a3c30" stroke="#262820" stroke-width="1.5"/>
+    <rect x="16" y="-2" width="16" height="7" rx="2" fill="#e8962e"/>
+    <rect x="213" y="-2" width="16" height="7" rx="2" fill="#e8962e"/>
+
+    <!-- Fahrerhaus -->
+    <rect x="8" y="8" width="229" height="208" rx="14" fill="#5f6249" stroke="#2f3126" stroke-width="2"/>
+    <rect x="22" y="22" width="201" height="180" rx="8" fill="#7c8277" stroke="#4b4f43" stroke-width="1.5"/>
+    <path d="M122.5 24V200" stroke="#5f6458" stroke-width="1.5"/>
+    <rect x="40" y="96" width="62" height="70" rx="4" fill="#8d9389" stroke="#5f6458" stroke-width="1.5"/>
+    <path d="M40 131H102" stroke="#5f6458" stroke-width="1.2"/>
+
+    <!-- Übergang -->
+    <rect x="30" y="216" width="185" height="14" fill="#2a2c23"/>
+
+    <!-- Wohnkoffer -->
+    <rect x="0" y="228" width="245" height="466" rx="6" fill="#5f6249" stroke="#2f3126" stroke-width="2"/>
+    <rect x="5" y="233" width="235" height="456" rx="4" fill="#e7ecee" stroke="#b9c2c6" stroke-width="1"/>
+
+    <!-- Solarmodule 2 × 3 -->
+    <g stroke="#c9d0d4" stroke-width="2.5">
+      <rect x="14" y="250" width="70" height="145" fill="url(#cells)"/>
+      <rect x="88" y="250" width="70" height="145" fill="url(#cells)"/>
+      <rect x="162" y="250" width="70" height="145" fill="url(#cells)"/>
+      <rect x="14" y="399" width="70" height="145" fill="url(#cells)"/>
+      <rect x="88" y="399" width="70" height="145" fill="url(#cells)"/>
+      <rect x="162" y="399" width="70" height="145" fill="url(#cells)"/>
+    </g>
+
+    <!-- Dachfenster -->
+    <rect x="76" y="566" width="88" height="66" rx="5" fill="#f4f7f8" stroke="#aab4b9" stroke-width="2"/>
+    <rect x="83" y="573" width="74" height="52" rx="3" fill="url(#glass)"/>
+
+    <!-- Lüfter -->
+    <circle cx="210" cy="590" r="7" fill="#3a3f45" stroke="#aab4b9" stroke-width="2"/>
+    <circle cx="210" cy="616" r="5" fill="#3a3f45" stroke="#aab4b9" stroke-width="2"/>
+
+    <!-- Heck -->
+    <rect x="16" y="690" width="213" height="9" rx="3" fill="#3a3c30" stroke="#262820" stroke-width="1.5"/>
+    <rect x="18" y="692" width="14" height="5" rx="1.5" fill="#c4302b"/>
+    <rect x="213" y="692" width="14" height="5" rx="1.5" fill="#c4302b"/>
+  </g>
+</svg>
