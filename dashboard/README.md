@@ -41,3 +41,24 @@ HA-Compass (HACS-Integration, Domain ha_compass)
 
 Eine eigene Integration ist nötig, weil die HA-Integrationen `sun` und `moon` mit der festen Heimatposition rechnen
 und keine Mondposition liefern. Im Wohnmobil muss mit der GPS-Position gerechnet werden.
+
+## Lovelace-Karte `ha-compass-card`
+
+![Vorschau](karte-vorschau.png)
+
+Die Karte wird von der Integration mitgeliefert und automatisch in allen Dashboards geladen – keine Ressource, keine separate HACS-Installation.
+Sie folgt dem HA-Theme (hell/dunkel) und ordnet sich ab ca. 520 px Kartenbreite nebeneinander an, darunter untereinander.
+
+```yaml
+type: custom:ha-compass-card
+heading_entity: sensor.camper_kompass_ausrichtung_geografisch
+title: Kompass            # optional
+view: auto                # auto = folgt select.ha_compass_ansicht | vehicle | ring
+show_info: true           # Infospalte
+show_horizon: true        # Sonnenverlauf über den Tag (ersetzt die Horizon Card)
+show_moon_path: true      # Mondverlauf im Horizontstreifen
+vehicle_image: /local/mein-fahrzeug.png   # optional, eigenes Bild (Front oben)
+```
+
+Tippen auf den Kompass oder den Button schaltet die Ansicht um (bei `view: auto` für alle Anzeigen inkl. openHASP).
+Die Karte ist auch im visuellen Editor konfigurierbar.

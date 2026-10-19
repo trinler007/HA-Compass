@@ -24,7 +24,7 @@ Der Kompass liefert die Ausrichtung des Fahrzeugs in Grad – magnetisch und geo
 ## Repository-Struktur
 
 ```
-├── custom_components/ha_compass/   HA-Integration: Sonne, Mond, Schattenseite, Ansicht
+├── custom_components/ha_compass/   HA-Integration: Sonne, Mond, Schattenseite, Ansicht + Lovelace-Karte
 ├── openhasp/                       openHASP-Seite 480 × 480
 ├── dashboard/                      Fahrzeuggrafik, Konzept
 ├── esphome/
@@ -84,7 +84,8 @@ Gerechnet wird mit der HA-Heimatposition (im Fahrzeug per GPS nachgeführt).
 - [ ] Z-Offset, Kreisfahrt-Kalibrierung, erste Fahrt mit GPS-Abgleich
 - [x] Integration HA Compass (Sonne, Mond, Schattenseite, Ansicht)
 - [x] openHASP-Seite
-- [ ] Lovelace-Karte (ersetzt Horizon Card)
+- [x] Lovelace-Karte `ha-compass-card` (ersetzt Horizon Card)
+- [ ] Test in HA (Integration, Karte, openHASP)
 
 ## Lizenz
 
