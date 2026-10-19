@@ -3,7 +3,7 @@
  * Teil von HA-Compass (Apache-2.0). Sonnen-/Mondberechnung: SunCalc-Port
  * (BSD-2-Clause, © 2014 Vladimir Agafonkin) – siehe NOTICE.
  */
-const CARD_VERSION = "0.4.0";
+const CARD_VERSION = "0.4.1";
 
 /* ------------------------------------------------------------ Astronomie (SunCalc) */
 const RAD = Math.PI / 180, DAY_MS = 86400000, J1970 = 2440588, J2000 = 2451545, E = RAD * 23.4397;
@@ -76,7 +76,41 @@ function moonPath(cx, cy, r, phase) {
   return `M${top}A${r} ${r} 0 0 0 ${bot}A${rx} ${r} 0 0 ${s} ${top}Z`;
 }
 
+/* Visueller Editor: blendet Standardwerte ein, damit Schalter den echten Zustand zeigen,
+   und speichert nur Werte, die vom Standard abweichen. */
+class HaCompassEditor extends HTMLElement {
+  setConfig(config) { this._config = config; this._render(); }
+  set hass(hass) { this._hass = hass; if (this._form) this._form.hass = hass; }
+  _render() {
+    const card = customElements.get(this.cardType);
+    if (!card) return;
+    if (!this._form) {
+      this._form = document.createElement("ha-form");
+      this._form.addEventListener("value-changed", (ev) => {
+        const out = {};
+        for (const [k, v] of Object.entries(ev.detail.value)) {
+          if (v === undefined || v === "" || v === null) continue;
+          if (k !== "type" && card.DEFAULTS[k] === v) continue;
+          out[k] = v;
+        }
+        out.type = this._config.type;
+        this.dispatchEvent(new CustomEvent("config-changed", { detail: { config: out }, bubbles: true, composed: true }));
+      });
+      this.appendChild(this._form);
+    }
+    const form = card.getConfigForm();
+    this._form.schema = form.schema;
+    this._form.computeLabel = form.computeLabel;
+    this._form.data = { ...card.DEFAULTS, ...this._config };
+    if (this._hass) this._form.hass = this._hass;
+  }
+}
+class HaCompassCardEditor extends HaCompassEditor { get cardType() { return "ha-compass-card"; } }
+class HaLevelCardEditor extends HaCompassEditor { get cardType() { return "ha-level-card"; } }
+
 class HaCompassCard extends HTMLElement {
+  static getConfigElement() { return document.createElement("ha-compass-card-editor"); }
+
   static getStubConfig() {
     return { heading_entity: "sensor.camper_kompass_ausrichtung_geografisch" };
   }
@@ -432,8 +466,10 @@ const TL = {
 };
 
 class HaLevelCard extends HTMLElement {
+  static getConfigElement() { return document.createElement("ha-level-card-editor"); }
+
   static DEFAULTS = {
-    wheelbase: 3500, track_width: 1900, bubble_range: 5, tolerance: 0.5, warn: 1.5,
+    wheelbase: 3500, track_width: 1886, bubble_range: 5, tolerance: 0.5, warn: 1.5,
     show_views: true, show_bubble: true, show_values: true, show_hint: true,
   };
 
@@ -612,3 +648,6 @@ if (!customElements.get("ha-level-card")) {
     preview: false, documentationURL: "https://github.com/trinler007/HA-Compass",
   });
 }
+
+if (!customElements.get("ha-compass-card-editor")) customElements.define("ha-compass-card-editor", HaCompassCardEditor);
+if (!customElements.get("ha-level-card-editor")) customElements.define("ha-level-card-editor", HaLevelCardEditor);

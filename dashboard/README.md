@@ -114,7 +114,7 @@ hint_entity: sensor.technik_wasserwaage_nivellier_hinweis
 | Option | Standard | Wirkung |
 | --- | --- | --- |
 | `show_views`, `show_bubble`, `show_values`, `show_hint` | `true` | Ansichten, Libelle, Werte, Hinweis |
-| `wheelbase` / `track_width` | `3500` / `1900` mm | Basis für die berechneten Höhendifferenzen |
+| `wheelbase` / `track_width` | `3500` / `1886` mm | Basis für die berechneten Höhendifferenzen |
 | `tolerance` / `warn` | `0.5` / `1.5` ° | Farbgrenzen |
 | `bubble_range` | `5` ° | Vollausschlag der Libelle |
 
