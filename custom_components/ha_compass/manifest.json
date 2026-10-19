@@ -14,7 +14,7 @@
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/trinler007/HA-Compass/issues",
   "requirements": [],
-  "version": "0.4.2",
+  "version": "0.4.3",
   "after_dependencies": [
     "lovelace"
   ]

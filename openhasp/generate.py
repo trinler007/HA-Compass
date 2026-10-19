@@ -12,7 +12,8 @@ P = int(sys.argv[2]) if len(sys.argv) > 2 else 9
 HEADING = "sensor.camper_kompass_ausrichtung_geografisch"
 VIEW = "select.ha_compass_ansicht"
 CX, CY = 180, 237          # Kompassmitte
-R_TICK, R_LBL, R_SUN = 145, 122, 160
+R_TICK, R_LBL, R_SUN = 145, 108, 160
+VEH_ZOOM = 232            # 256 = 100 %; Fahrzeug ~178 px lang
 BG, CARD, FG, SUB, AMBER, MOON = "#2C3E50", "#1F2A36", "#FFFFFF", "#B7C9D8", "#F59E0B", "#CBD5E1"
 
 
@@ -63,9 +64,17 @@ obj(1, obj="img", src="L:/terminal01-bg.png", auto_size=1, h=480, w=480, zoom=25
 # Scheibe + Skala
 obj(2, obj="obj", x=CX - R_TICK, y=CY - R_TICK, w=2 * R_TICK, h=2 * R_TICK, radius=R_TICK,
     bg_color=CARD, border_width=2, border_color="#3C5268", click=0)
-obj(3, obj="linemeter", x=CX - R_TICK + 2, y=CY - R_TICK + 2, w=2 * R_TICK - 4, h=2 * R_TICK - 4,
-    angle=360, line_count=72, min=0, max=100, val=100, scale_width=8, line_width=2,
-    line_color=SUB, scale_end_color=SUB, scale_grad_color=SUB, bg_opa=0, border_width=0, click=0)
+# Skala ganz außen: 72 Feinstriche (5°) + 4 lange Hauptstriche (N/O/S/W), drehen im Modus „Ring dreht“ mit
+obj(3, obj="linemeter", x=CX - R_TICK, y=CY - R_TICK, w=2 * R_TICK, h=2 * R_TICK,
+    angle=360, line_count=73, min=0, max=100, val=100, scale_width=9, line_width=2,
+    line_color=SUB, scale_end_color=SUB, scale_grad_color=SUB, scale_end_line_width=2,
+    bg_opa=0, border_width=0, pad_top=0, pad_bottom=0, pad_left=0, pad_right=0, click=0)
+bind(3, {"rotation": J_ROT + "{{ (rot % 360)|round|int }}"})
+obj(5, obj="linemeter", x=CX - R_TICK, y=CY - R_TICK, w=2 * R_TICK, h=2 * R_TICK,
+    angle=360, line_count=5, min=0, max=100, val=100, scale_width=20, line_width=4,
+    line_color=FG, scale_end_color=FG, scale_grad_color=FG, scale_end_line_width=4,
+    bg_opa=0, border_width=0, pad_top=0, pad_bottom=0, pad_left=0, pad_right=0, click=0)
+bind(5, {"rotation": J_ROT + "{{ (rot % 360)|round|int }}"})
 
 # Sonnenbahn (Hintergrund = Tagesbogen, Indikator = bisheriger Verlauf)
 obj(4, obj="arc", x=CX - R_SUN, y=CY - R_SUN, w=2 * R_SUN, h=2 * R_SUN, start_angle=14, end_angle=166,
@@ -86,11 +95,11 @@ for i, (az, t) in enumerate(((0, "N"), (90, "O"), (180, "S"), (270, "W"))):
     oid = 10 + i
     a = math.radians(az)
     obj(oid, obj="label", x=round(CX + R_LBL * math.sin(a) - 13), y=round(CY - R_LBL * math.cos(a) - 13),
-        w=26, h=26, text=t, align=1, text_font=20, text_color="#EF4444" if t == "N" else FG, bg_opa=0, click=0)
+        w=26, h=26, text=t, align=1, text_font=25, text_color="#EF4444" if t == "N" else FG, bg_opa=0, click=0)
     bind(oid, {"x": j_xy(str(az), R_LBL, 26, "x"), "y": j_xy(str(az), R_LBL, 26, "y")})
 
 # Fahrzeug
-obj(20, obj="img", src="L:/nx01.png", x=CX - 98, y=CY - 98, w=196, h=196, zoom=256, angle=0, click=0)
+obj(20, obj="img", src="L:/nx01.png", x=CX - 98, y=CY - 98, w=196, h=196, zoom=VEH_ZOOM, angle=0, click=0)
 bind(20, {"angle": J_H + f"{{{{ (h*10)|round|int if is_state('{VIEW}','fahrzeug_dreht') else 0 }}}}"})
 
 # Bug-Markierung im Modus „Ring dreht“

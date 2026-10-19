@@ -3,7 +3,7 @@
  * Teil von HA-Compass (Apache-2.0). Sonnen-/Mondberechnung: SunCalc-Port
  * (BSD-2-Clause, © 2014 Vladimir Agafonkin) – siehe NOTICE.
  */
-const CARD_VERSION = "0.4.2";
+const CARD_VERSION = "0.4.3";
 
 /* ------------------------------------------------------------ Astronomie (SunCalc) */
 const RAD = Math.PI / 180, DAY_MS = 86400000, J1970 = 2440588, J2000 = 2451545, E = RAD * 23.4397;
@@ -278,12 +278,12 @@ class HaCompassCard extends HTMLElement {
     };
     let ticks = "";
     for (let d = 0; d < 360; d += 5) {
-      const L = d % 90 === 0 ? 14 : d % 30 === 0 ? 9 : 5;
+      const L = d % 90 === 0 ? 24 : d % 30 === 0 ? 10 : 6;
       const [x1, y1] = pt(d, R), [x2, y2] = pt(d, R - L);
-      ticks += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" class="${d % 30 === 0 ? "tk" : "tm"}" stroke-width="${d % 90 === 0 ? 2.2 : 1.2}"/>`;
+      ticks += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" class="${d % 30 === 0 ? "tk" : "tm"}" stroke-width="${d % 90 === 0 ? 3.5 : 1.2}" stroke-linecap="round"/>`;
     }
     const labels = t.cardinals.map((l, i) => {
-      const [x, y] = pt(i * 90, R - 32);
+      const [x, y] = pt(i * 90, R - 42);
       return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" class="${i === 0 ? "north" : "card"}" transform="rotate(${-ringRot} ${x.toFixed(1)} ${y.toFixed(1)})">${l}</text>`;
     }).join("");
 
@@ -307,7 +307,7 @@ class HaCompassCard extends HTMLElement {
     }
     const veh = this._config.vehicle_image
       ? `<image href="${this._config.vehicle_image}" x="-60" y="-120" width="120" height="240" preserveAspectRatio="xMidYMid meet"/>`
-      : `<g transform="scale(${(250 / 711).toFixed(4)}) translate(-122.5 -349.5)">${VEHICLE_SVG}</g>`;
+      : `<g transform="scale(${(220 / 711).toFixed(4)}) translate(-122.5 -349.5)">${VEHICLE_SVG}</g>`;
 
     const compass = `
 <svg class="compass${cfg.tap_action === "none" ? " notap" : ""}" style="${cfg.compass_size ? `max-width:${cfg.compass_size}px` : ""}" viewBox="0 0 400 400" role="img" aria-label="${t.heading} ${fmt(heading)}°">
