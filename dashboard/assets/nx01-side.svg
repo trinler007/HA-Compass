@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 699 357" width="699" height="357">
+  <!-- Enterprise NX-01 · Seitenansicht (Fahrerseite), Front links. 1 Einheit = 10 mm.
+       Bodenlinie y = 357. Für Nicken: + = Front höher → im Uhrzeigersinn drehen. -->
+  <defs>
+    <linearGradient id="sv-glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5d7387"/><stop offset="1" stop-color="#2e3b47"/></linearGradient>
+    <linearGradient id="sv-alu" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8eaec"/><stop offset=".5" stop-color="#cfd3d6"/><stop offset="1" stop-color="#a9afb4"/></linearGradient>
+  </defs>
+  <g transform="scale(0.38919) translate(-142 -9)" stroke-linejoin="round">
+    <!-- Fahrgestell -->
+    <rect x="700" y="596" width="1130" height="100" fill="#1f2021"/>
+    <!-- Wohnkoffer -->
+    <path d="M708 40 Q708 30 718 30 L1918 30 Q1930 30 1930 42 L1930 492 L1818 602 L708 602 Z" fill="#a7a296" stroke="#6f6b62" stroke-width="5"/>
+    <path d="M708 30 L1930 30 L1930 48 L708 48 Z" fill="#bdb8ad"/>
+    <rect x="800" y="14" width="26" height="16" rx="4" fill="#1f2021"/><rect x="1088" y="16" width="20" height="14" rx="3" fill="#1f2021"/><rect x="1492" y="20" width="32" height="10" rx="3" fill="#1f2021"/>
+    <rect x="762" y="92" width="96" height="198" rx="4" fill="#bdb8ad" stroke="#7a766c" stroke-width="4"/>
+    <rect x="772" y="102" width="74" height="178" rx="3" fill="url(#sv-glass)"/>
+    <rect x="1168" y="155" width="334" height="160" rx="5" fill="#bdb8ad" stroke="#7a766c" stroke-width="4"/>
+    <rect x="1180" y="166" width="312" height="138" rx="4" fill="url(#sv-glass)"/>
+    <!-- Dekor: Streifen + Bergsilhouette (vereinfacht) -->
+    <path d="M730 428 H1902 V466 H730 Z" fill="#1f2021"/>
+    <path d="M730 428 L740 406 L750 428 Z M746 428 L758 402 L770 428 Z M766 428 L772 414 L778 428 Z M776 428 L786 406 L796 428 Z M786 428 L800 398 L814 428 Z M812 428 L818 414 L824 428 Z M820 428 L832 402 L844 428 Z M852 428 L858 414 L864 428 Z M870 428 L876 414 L882 428 Z M896 428 L902 414 L908 428 Z M908 428 L916 410 L924 428 Z M916 428 L930 398 L944 428 Z M950 428 L956 414 L962 428 Z M968 428 L974 414 L980 428 Z M982 428 L992 406 L1002 428 Z M1010 428 L1018 410 L1026 428 Z M1018 428 L1032 398 L1046 428 Z M1040 428 L1054 398 L1068 428 Z M1066 428 L1072 414 L1078 428 Z M1080 428 L1090 406 L1100 428 Z M1090 428 L1104 398 L1118 428 Z M1104 428 L1118 398 L1132 428 Z M1118 428 L1132 398 L1146 428 Z M1138 428 L1150 402 L1162 428 Z M1169 428 L1176 412 L1183 428 Z M1186 428 L1198 402 L1210 428 Z M1214 428 L1224 406 L1234 428 Z M1238 428 L1246 410 L1254 428 Z M1253 428 L1264 404 L1275 428 Z M1276 428 L1282 414 L1288 428 Z M1290 428 L1304 398 L1318 428 Z M1320 428 L1330 406 L1340 428 Z M1346 428 L1356 406 L1366 428 Z M1364 428 L1370 414 L1376 428 Z M1388 428 L1396 410 L1404 428 Z M1410 428 L1418 410 L1426 428 Z M1432 428 L1444 402 L1456 428 Z M1447 428 L1458 404 L1469 428 Z M1465 428 L1472 412 L1479 428 Z M1514 428 L1524 406 L1534 428 Z M1532 428 L1546 398 L1560 428 Z M1558 428 L1572 398 L1586 428 Z M1592 428 L1598 414 L1604 428 Z M1602 428 L1612 406 L1622 428 Z M1627 428 L1638 404 L1649 428 Z M1646 428 L1652 414 L1658 428 Z M1663 428 L1674 404 L1685 428 Z M1690 428 L1700 406 L1710 428 Z M1715 428 L1726 404 L1737 428 Z M1742 428 L1748 414 L1754 428 Z M1764 428 L1774 406 L1784 428 Z M1778 428 L1792 398 L1806 428 Z M1794 428 L1806 402 L1818 428 Z M1812 428 L1820 410 L1828 428 Z M1322 438 L1338 398 L1354 438 Z M1325 414 L1338 375 L1351 414 Z M1328 390 L1338 351 L1348 390 Z M1332 367 L1338 327 L1344 367 Z M1349 438 L1362 406 L1375 438 Z M1352 420 L1362 389 L1372 420 Z M1354 403 L1362 371 L1370 403 Z M1357 386 L1362 354 L1367 386 Z M1836 438 L1858 381 L1880 438 Z M1840 400 L1858 344 L1876 400 Z M1845 363 L1858 306 L1871 363 Z M1849 326 L1858 269 L1867 326 Z" fill="#1f2021"/>
+    <path d="M735 420 L758 386 L780 410 L800 398 L830 420 M955 415 L1045 335 L1080 372 L1110 355 L1150 390 L1190 362 L1245 405 L1290 420 M1390 420 L1450 360 L1480 380 L1530 318 L1575 352 L1610 300 L1655 350 L1700 330 L1760 392 L1820 420" fill="none" stroke="#1f2021" stroke-width="9" stroke-linecap="round"/>
+    <path d="M1045 335 L1060 370 M1110 355 L1120 384 M1530 318 L1545 352 M1610 300 L1622 340 M1700 330 L1712 360" fill="none" stroke="#1f2021" stroke-width="6" stroke-linecap="round"/>
+    <!-- Seitenklappe -->
+    <rect x="1528" y="348" width="305" height="204" rx="4" fill="none" stroke="#7a766c" stroke-width="4"/>
+    <rect x="1655" y="507" width="50" height="18" rx="6" fill="#bdb8ad" stroke="#6f6b62" stroke-width="3"/>
+    <!-- Staukästen -->
+    <rect x="748" y="610" width="190" height="152" rx="4" fill="url(#sv-alu)" stroke="#9aa0a5" stroke-width="3"/>
+    <rect x="942" y="610" width="195" height="152" rx="4" fill="url(#sv-alu)" stroke="#9aa0a5" stroke-width="3"/>
+    <rect x="1605" y="612" width="165" height="128" rx="4" fill="url(#sv-alu)" stroke="#9aa0a5" stroke-width="3"/>
+    <rect x="828" y="620" width="30" height="24" rx="4" fill="#8f969b"/><rect x="1025" y="620" width="30" height="24" rx="4" fill="#8f969b"/><rect x="1672" y="622" width="30" height="24" rx="4" fill="#8f969b"/>
+    <!-- Kotflügel hinten (Riffelblech) -->
+    <path d="M1190 762 L1270 615 L1500 615 L1565 762" fill="none" stroke="#cfd3d6" stroke-width="22"/>
+    <!-- Leiter -->
+    <path d="M1700 742 L1848 805" stroke="#1f2021" stroke-width="26" stroke-linecap="round"/>
+    <!-- Fahrerhaus -->
+    <path d="M675 210 L675 640 L635 640 Q600 530 475 528 Q350 530 312 640 L215 640 L210 590 L215 262 Q218 210 262 208 Z" fill="#a7a296" stroke="#6f6b62" stroke-width="5"/>
+    <rect x="675" y="210" width="35" height="430" fill="#1f2021"/>
+    <path d="M250 238 H445 V365 H250 Z" fill="url(#sv-glass)" stroke="#1f2021" stroke-width="6"/>
+    <rect x="495" y="238" width="147" height="132" rx="22" fill="url(#sv-glass)" stroke="#1f2021" stroke-width="8"/>
+    <path d="M455 222 V640" stroke="#77736a" stroke-width="4"/>
+    <rect x="232" y="425" width="213" height="38" fill="#1f2021"/><rect x="468" y="425" width="189" height="38" fill="#1f2021"/>
+    <!-- Kotflügel vorn -->
+    <path d="M300 650 Q312 528 475 520 Q632 528 648 650" fill="none" stroke="#6e6f6d" stroke-width="26"/>
+    <!-- Spiegel -->
+    <path d="M262 214 L238 240 L236 360" fill="none" stroke="#1f2021" stroke-width="7"/>
+    <rect x="232" y="300" width="28" height="62" rx="10" fill="#1f2021"/>
+    <!-- Front / Stoßstange -->
+    <rect x="145" y="608" width="70" height="78" rx="6" fill="#1f2021"/>
+    <rect x="152" y="522" width="30" height="16" rx="4" fill="#e8962e"/>
+    <circle cx="264" cy="652" r="9" fill="#e8962e"/>
+    <path d="M630 690 L670 690 L668 780 L632 780 Z" fill="#1f2021"/>
+    <!-- Räder -->
+    <circle cx="475" cy="776" r="136" fill="#1b1b1b"/><circle cx="475" cy="776" r="126.5" fill="none" stroke="#2a2a2a" stroke-width="6.8" stroke-dasharray="8.2 6.8"/><circle cx="475" cy="776" r="76.2" fill="#2b2d2f" stroke="#3a3d40" stroke-width="4"/><circle cx="475" cy="776" r="27.2" fill="#3a3d40"/><circle cx="518.5" cy="776.0" r="6.1" fill="#8b9095"/><circle cx="505.8" cy="806.8" r="6.1" fill="#8b9095"/><circle cx="475.0" cy="819.5" r="6.1" fill="#8b9095"/><circle cx="444.3" cy="806.8" r="6.1" fill="#8b9095"/><circle cx="431.5" cy="776.1" r="6.1" fill="#8b9095"/><circle cx="444.2" cy="745.3" r="6.1" fill="#8b9095"/><circle cx="474.9" cy="732.5" r="6.1" fill="#8b9095"/><circle cx="505.7" cy="745.1" r="6.1" fill="#8b9095"/>
+    <circle cx="1385" cy="780" r="136" fill="#1b1b1b"/><circle cx="1385" cy="780" r="126.5" fill="none" stroke="#2a2a2a" stroke-width="6.8" stroke-dasharray="8.2 6.8"/><circle cx="1385" cy="780" r="76.2" fill="#2b2d2f" stroke="#3a3d40" stroke-width="4"/><circle cx="1385" cy="780" r="27.2" fill="#3a3d40"/><circle cx="1428.5" cy="780.0" r="6.1" fill="#8b9095"/><circle cx="1415.8" cy="810.8" r="6.1" fill="#8b9095"/><circle cx="1385.0" cy="823.5" r="6.1" fill="#8b9095"/><circle cx="1354.3" cy="810.8" r="6.1" fill="#8b9095"/><circle cx="1341.5" cy="780.1" r="6.1" fill="#8b9095"/><circle cx="1354.2" cy="749.3" r="6.1" fill="#8b9095"/><circle cx="1384.9" cy="736.5" r="6.1" fill="#8b9095"/><circle cx="1415.7" cy="749.1" r="6.1" fill="#8b9095"/>
+  </g>
+</svg>

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 245 345" width="245" height="345">
+  <!-- Enterprise NX-01 · Heckansicht. 1 Einheit = 10 mm, Breite 2450 mm.
+       Bodenlinie y = 345, Fahrerseite (links) links im Bild von hinten gesehen rechts!
+       Für Rollen: + = Fahrerseite höher → von hinten gesehen rechte Seite hoch → gegen den Uhrzeigersinn drehen. -->
+  <defs>
+    <linearGradient id="rv-alu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3e6e8"/><stop offset="1" stop-color="#a3a9ae"/></linearGradient>
+  </defs>
+  <g transform="scale(0.40098) translate(-67 -3)" stroke-linejoin="round">
+    <!-- Räder -->
+    <rect x="82" y="760" width="90" height="103" rx="14" fill="#1b1b1b"/>
+    <rect x="553" y="760" width="92" height="103" rx="14" fill="#1b1b1b"/>
+    <!-- Rahmen / Unterbau -->
+    <rect x="150" y="595" width="445" height="140" fill="#1f2021"/>
+    <rect x="268" y="590" width="22" height="150" fill="url(#rv-alu)"/><rect x="445" y="590" width="22" height="150" fill="url(#rv-alu)"/>
+    <rect x="80" y="575" width="72" height="200" fill="url(#rv-alu)" stroke="#9aa0a5" stroke-width="3"/>
+    <rect x="595" y="575" width="72" height="200" fill="url(#rv-alu)" stroke="#9aa0a5" stroke-width="3"/>
+    <rect x="90" y="733" width="566" height="30" rx="15" fill="url(#rv-alu)" stroke="#9aa0a5" stroke-width="3"/>
+    <!-- Wohnkoffer -->
+    <rect x="70" y="5" width="606" height="458" rx="6" fill="#a7a296" stroke="#6f6b62" stroke-width="5"/>
+    <rect x="90" y="24" width="566" height="420" rx="3" fill="none" stroke="#8f8a7f" stroke-width="3"/>
+    <path d="M70 463 H676 V545 L660 560 H86 L70 545 Z" fill="#55524b" stroke="#3d3b36" stroke-width="4"/>
+    <circle cx="86" cy="20" r="7" fill="#e23b2e"/><circle cx="660" cy="20" r="7" fill="#e23b2e"/>
+    <!-- Heckträger, Kennzeichen (neutral), Leuchten -->
+    <rect x="100" y="560" width="550" height="38" fill="url(#rv-alu)" stroke="#9aa0a5" stroke-width="3"/>
+    <rect x="112" y="565" width="128" height="27" rx="3" fill="#f4f4f4" stroke="#333" stroke-width="2"/>
+    <rect x="112" y="565" width="12" height="27" fill="#2f4fa3"/>
+    <rect x="105" y="600" width="85" height="32" rx="3" fill="#c62828"/><rect x="105" y="600" width="26" height="32" rx="3" fill="#e8962e"/>
+    <rect x="550" y="600" width="86" height="32" rx="3" fill="#c62828"/><rect x="610" y="600" width="26" height="32" rx="3" fill="#e8962e"/>
+    <rect x="238" y="605" width="26" height="22" rx="2" fill="#d8dadb"/><rect x="476" y="605" width="26" height="22" rx="2" fill="#d8dadb"/>
+  </g>
+</svg>
