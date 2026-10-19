@@ -6,6 +6,8 @@
 | --- | --- | --- |
 | 1 | ESP32-S3-DevKitC-1 | ESP-IDF-Framework |
 | 1 | Adafruit MMC5603 Triple-axis Magnetometer (#5579) | I²C-Adresse 0x30, Platine 25,4 × 17,8 mm, 4 Löcher 2,5 mm |
+| 1 | Murata SCL3300-D01-PCB (Neigungssensor auf Trägerplatine, 42,9 × 27,4 mm) | ersetzt die externe Wasserwaage; nur 3,3 V |
+| 4 | Messing-Einschmelzmutter M2 + Nylonschraube M2 × 5 | Befestigung SCL3300 |
 | 1 | Step-Down-Wandler 24 V → 5 V | im Nachbarschrank, ca. 60 cm vom Sensor |
 | 1 | USB-Einbaubuchse rund (12 mm) | 5-V-Zuführung ins Gehäuse |
 | 4 | Messing-Einschmelzmutter M2,5 | Sensorbefestigung |
@@ -25,6 +27,20 @@
 | SDA | GPIO 11 | I²C-Daten |
 | SCL | GPIO 12 | I²C-Takt |
 
+### Neigungssensor SCL3300 (SPI)
+
+| SCL3300-D01-PCB | ESP32-S3 | Funktion |
+| --- | --- | --- |
+| J2 AVDD | 3V3 | Versorgung analog |
+| J1 DVIO | 3V3 | Versorgung digital/IO (nie höher als AVDD) |
+| J2 AVSS, J1 DVSS | GND | Masse |
+| J2 SCK | GPIO 13 | SPI-Takt |
+| J2 MOSI | GPIO 14 | Daten ESP → Sensor |
+| J2 MISO | GPIO 15 | Daten Sensor → ESP |
+| J2 CSB | GPIO 16 | Chip Select |
+
+Die Platine hat keinen Spannungsregler – **niemals an 5 V**. Achsen laut Aufdruck: X entlang der langen Kante, Y entlang der kurzen, Z aus der Bauteilseite.
+
 Versorgung des ESP: 24 V Bordnetz → Step-Down 5 V → USB-Einbaubuchse → USB des ESP32-S3.
 
 Empfehlungen:
@@ -42,6 +58,14 @@ Datei: [`hardware/gehaeuse/camper-kompass-gehaeuse.scad`](../hardware/gehaeuse/c
 - Befestigungsflansch mit 4 Löchern am Gehäuseboden
 - Lüftungsschlitze im Deckel gegen Kondenswasser
 - Pfeil „FRONT“ im Deckel
+
+### Belegung
+
+![Belegung](../hardware/gehaeuse/belegung.png)
+
+Der SCL3300 sitzt quer im Gehäuse direkt vor dem Magnetometer auf 16 mm hohen Abstandshaltern – darunter ist Platz für Dupont-Stecker auf den Stiftleisten.
+Die Lochabstände (36,2 × 20,0 mm) sind aus einem Produktfoto vermessen; bei Lieferung mit dem Messschieber prüfen (`scl_loch_abst_l/_b`).
+OpenSCAD meldet beim Rendern die freie Länge für den ESP32 und den Abstand der beiden Sensorchips.
 
 ### Einbauvarianten
 

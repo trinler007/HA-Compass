@@ -1,5 +1,6 @@
 // ====================================================================
 // PARAMETRISCHES WOHNMOBIL-GEHÄUSE FÜR ESP32-S3 & MMC5603
+// v3.3: Halterung für Neigungssensor Murata SCL3300-D01-PCB
 // v3.2: Einbauvarianten "laengs" und "quer" (Parameter einbau),
 //       zweiter Deckel mit Pfeil "FRONT" zur langen Seite
 // v3.1: Sensor quer (X-Pfeil in Gehäuselängsrichtung)
@@ -44,7 +45,7 @@ einbau = "laengs";
 //   laengs -> Platine quer im Gehäuse (90°), X entlang der Gehäuselänge
 //   quer   -> Platine längs im Gehäuse (0°),  X entlang der Gehäusebreite
 sensor_drehung  = (einbau == "quer") ? 0 : 90;
-abstand_endwand = 8;   // Platz zur Stirnwand (STEMMA-Stecker / Kabelbogen)
+abstand_endwand = (einbau == "quer") ? 5 : 8;   // Platz zur Stirnwand (Kabelbogen)
 
 standoff_hoehe = 5;
 standoff_d     = 7;
@@ -57,6 +58,23 @@ insert_tiefe = 4.5;
 durchgang_d  = 2.8;
 mutter_sw    = 5.2;    // Schlüsselweite M2,5 + Spiel
 mutter_h     = 2.0;
+
+// --------------------------------------------------------------------
+// Neigungssensor Murata SCL3300-D01-PCB (42,9 × 27,4 mm, Stiftleisten nach unten)
+// Liegt quer im Gehäuse direkt vor dem Magnetometer.
+// Lochabstände aus Produktfoto vermessen (±0,5 mm) – bei Lieferung mit dem
+// Messschieber prüfen. M2-Schrauben lassen in den Platinenlöchern Spiel.
+// --------------------------------------------------------------------
+scl_einbauen      = true;
+scl_laenge        = 42.9;   // lange Kante (liegt quer zum Gehäuse)
+scl_breite        = 27.4;
+scl_loch_abst_l   = 36.2;   // Lochmitte–Lochmitte entlang der langen Kante
+scl_loch_abst_b   = 20.0;   // Lochmitte–Lochmitte entlang der kurzen Kante
+scl_abstand_mmc   = 4;      // Luft zwischen SCL-Platine und Magnetometer-Platine
+scl_standoff_hoehe = 16;    // Platz unter der Platine für Dupont-Stecker auf den Stiftleisten
+scl_standoff_d    = 6;
+scl_insert_d      = 3.2;    // Einschmelzmutter M2 (Datenblatt prüfen)
+scl_insert_tiefe  = 4;
 
 // --------------------------------------------------------------------
 // Befestigung am Möbel (Laschen an beiden Längsseiten)
@@ -105,6 +123,18 @@ loch_dy = ((sensor_drehung == 0) ? loch_abst_b : loch_abst_l) / 2;
 sensor_cx = wandstaerke + innen_laenge - abstand_endwand - fuss_x / 2;
 sensor_cy = aussen_breite / 2;
 
+mmc_start_x = sensor_cx - fuss_x / 2;
+scl_cx = mmc_start_x - scl_abstand_mmc - scl_breite / 2;
+scl_cy = aussen_breite / 2;
+scl_loecher = [
+    for (sx = [-1, 1]) for (sy = [-1, 1])
+        [scl_cx + sx * scl_loch_abst_b / 2, scl_cy + sy * scl_loch_abst_l / 2]
+];
+esp_platz = scl_cx - scl_breite / 2 - wandstaerke;
+echo(str("Freie Länge für den ESP32 ab Stirnwand (USB-Seite): ", esp_platz, " mm"));
+echo(str("Abstand SCL3300-Chip zu MMC5603-Chip ca. ", sensor_cx - scl_cx, " mm"));
+assert(!scl_einbauen || scl_laenge <= innen_breite - 1, "SCL3300-Platine passt nicht in die Innenbreite");
+
 // Mittelpunkte der Deckelschrauben (Ecksäulen)
 deckel_schrauben = [
     for (x = [wandstaerke + saeule / 2, wandstaerke + innen_laenge - saeule / 2])
@@ -135,6 +165,12 @@ module hauptgehaeuse() {
             for (p = sensor_loecher)
                 translate([p[0], p[1], wandstaerke - 0.01])
                     cylinder(d = standoff_d, h = standoff_hoehe + 0.01);
+
+            // Abstandshalter für den Neigungssensor
+            if (scl_einbauen)
+                for (p = scl_loecher)
+                    translate([p[0], p[1], wandstaerke - 0.01])
+                        cylinder(d = scl_standoff_d, h = scl_standoff_hoehe + 0.01);
 
             // Befestigungsflansch
             translate([0, -flansch_breite, 0])
@@ -168,6 +204,12 @@ module hauptgehaeuse() {
                     cylinder(d = mutter_sw / cos(30), h = mutter_h, $fn = 6);
             }
         }
+
+        // Einschmelzmuttern M2 für den Neigungssensor
+        if (scl_einbauen)
+            for (p = scl_loecher)
+                translate([p[0], p[1], wandstaerke + scl_standoff_hoehe - scl_insert_tiefe])
+                    cylinder(d = scl_insert_d, h = scl_insert_tiefe + 1);
 
         // Löcher im Flansch
         for (x = [flansch_loch_rand, aussen_laenge - flansch_loch_rand])
