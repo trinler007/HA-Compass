@@ -3,7 +3,7 @@
  * Teil von HA-Compass (Apache-2.0). Sonnen-/Mondberechnung: SunCalc-Port
  * (BSD-2-Clause, © 2014 Vladimir Agafonkin) – siehe NOTICE.
  */
-const CARD_VERSION = "0.3.0";
+const CARD_VERSION = "0.4.0";
 
 /* ------------------------------------------------------------ Astronomie (SunCalc) */
 const RAD = Math.PI / 180, DAY_MS = 86400000, J1970 = 2440588, J2000 = 2451545, E = RAD * 23.4397;
@@ -418,4 +418,197 @@ if (!customElements.get("ha-compass-card")) {
     preview: false, documentationURL: "https://github.com/trinler007/HA-Compass",
   });
   console.info(`%c HA-COMPASS-CARD %c ${CARD_VERSION} `, "background:#f59e0b;color:#000", "background:#333;color:#fff");
+}
+
+/* ============================================================ Nivellier-Karte */
+const SIDE_SVG = `<defs> <linearGradient id="lv-sv-glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5d7387"/><stop offset="1" stop-color="#2e3b47"/></linearGradient> <linearGradient id="lv-sv-alu" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8eaec"/><stop offset=".5" stop-color="#cfd3d6"/><stop offset="1" stop-color="#a9afb4"/></linearGradient> </defs> <g transform="scale(0.38919) translate(-142 -9)" stroke-linejoin="round"> <rect x="700" y="596" width="1130" height="100" fill="#1f2021"/> <path d="M708 40 Q708 30 718 30 L1918 30 Q1930 30 1930 42 L1930 492 L1818 602 L708 602 Z" fill="#a7a296" stroke="#6f6b62" stroke-width="5"/> <path d="M708 30 L1930 30 L1930 48 L708 48 Z" fill="#bdb8ad"/> <rect x="800" y="14" width="26" height="16" rx="4" fill="#1f2021"/><rect x="1088" y="16" width="20" height="14" rx="3" fill="#1f2021"/><rect x="1492" y="20" width="32" height="10" rx="3" fill="#1f2021"/> <rect x="762" y="92" width="96" height="198" rx="4" fill="#bdb8ad" stroke="#7a766c" stroke-width="4"/> <rect x="772" y="102" width="74" height="178" rx="3" fill="url(#lv-sv-glass)"/> <rect x="1168" y="155" width="334" height="160" rx="5" fill="#bdb8ad" stroke="#7a766c" stroke-width="4"/> <rect x="1180" y="166" width="312" height="138" rx="4" fill="url(#lv-sv-glass)"/> <path d="M730 428 H1902 V466 H730 Z" fill="#1f2021"/> <path d="M730 428 L740 406 L750 428 Z M746 428 L758 402 L770 428 Z M766 428 L772 414 L778 428 Z M776 428 L786 406 L796 428 Z M786 428 L800 398 L814 428 Z M812 428 L818 414 L824 428 Z M820 428 L832 402 L844 428 Z M852 428 L858 414 L864 428 Z M870 428 L876 414 L882 428 Z M896 428 L902 414 L908 428 Z M908 428 L916 410 L924 428 Z M916 428 L930 398 L944 428 Z M950 428 L956 414 L962 428 Z M968 428 L974 414 L980 428 Z M982 428 L992 406 L1002 428 Z M1010 428 L1018 410 L1026 428 Z M1018 428 L1032 398 L1046 428 Z M1040 428 L1054 398 L1068 428 Z M1066 428 L1072 414 L1078 428 Z M1080 428 L1090 406 L1100 428 Z M1090 428 L1104 398 L1118 428 Z M1104 428 L1118 398 L1132 428 Z M1118 428 L1132 398 L1146 428 Z M1138 428 L1150 402 L1162 428 Z M1169 428 L1176 412 L1183 428 Z M1186 428 L1198 402 L1210 428 Z M1214 428 L1224 406 L1234 428 Z M1238 428 L1246 410 L1254 428 Z M1253 428 L1264 404 L1275 428 Z M1276 428 L1282 414 L1288 428 Z M1290 428 L1304 398 L1318 428 Z M1320 428 L1330 406 L1340 428 Z M1346 428 L1356 406 L1366 428 Z M1364 428 L1370 414 L1376 428 Z M1388 428 L1396 410 L1404 428 Z M1410 428 L1418 410 L1426 428 Z M1432 428 L1444 402 L1456 428 Z M1447 428 L1458 404 L1469 428 Z M1465 428 L1472 412 L1479 428 Z M1514 428 L1524 406 L1534 428 Z M1532 428 L1546 398 L1560 428 Z M1558 428 L1572 398 L1586 428 Z M1592 428 L1598 414 L1604 428 Z M1602 428 L1612 406 L1622 428 Z M1627 428 L1638 404 L1649 428 Z M1646 428 L1652 414 L1658 428 Z M1663 428 L1674 404 L1685 428 Z M1690 428 L1700 406 L1710 428 Z M1715 428 L1726 404 L1737 428 Z M1742 428 L1748 414 L1754 428 Z M1764 428 L1774 406 L1784 428 Z M1778 428 L1792 398 L1806 428 Z M1794 428 L1806 402 L1818 428 Z M1812 428 L1820 410 L1828 428 Z M1322 438 L1338 398 L1354 438 Z M1325 414 L1338 375 L1351 414 Z M1328 390 L1338 351 L1348 390 Z M1332 367 L1338 327 L1344 367 Z M1349 438 L1362 406 L1375 438 Z M1352 420 L1362 389 L1372 420 Z M1354 403 L1362 371 L1370 403 Z M1357 386 L1362 354 L1367 386 Z M1836 438 L1858 381 L1880 438 Z M1840 400 L1858 344 L1876 400 Z M1845 363 L1858 306 L1871 363 Z M1849 326 L1858 269 L1867 326 Z" fill="#1f2021"/> <path d="M735 420 L758 386 L780 410 L800 398 L830 420 M955 415 L1045 335 L1080 372 L1110 355 L1150 390 L1190 362 L1245 405 L1290 420 M1390 420 L1450 360 L1480 380 L1530 318 L1575 352 L1610 300 L1655 350 L1700 330 L1760 392 L1820 420" fill="none" stroke="#1f2021" stroke-width="9" stroke-linecap="round"/> <path d="M1045 335 L1060 370 M1110 355 L1120 384 M1530 318 L1545 352 M1610 300 L1622 340 M1700 330 L1712 360" fill="none" stroke="#1f2021" stroke-width="6" stroke-linecap="round"/> <rect x="1528" y="348" width="305" height="204" rx="4" fill="none" stroke="#7a766c" stroke-width="4"/> <rect x="1655" y="507" width="50" height="18" rx="6" fill="#bdb8ad" stroke="#6f6b62" stroke-width="3"/> <rect x="748" y="610" width="190" height="152" rx="4" fill="url(#lv-sv-alu)" stroke="#9aa0a5" stroke-width="3"/> <rect x="942" y="610" width="195" height="152" rx="4" fill="url(#lv-sv-alu)" stroke="#9aa0a5" stroke-width="3"/> <rect x="1605" y="612" width="165" height="128" rx="4" fill="url(#lv-sv-alu)" stroke="#9aa0a5" stroke-width="3"/> <rect x="828" y="620" width="30" height="24" rx="4" fill="#8f969b"/><rect x="1025" y="620" width="30" height="24" rx="4" fill="#8f969b"/><rect x="1672" y="622" width="30" height="24" rx="4" fill="#8f969b"/> <path d="M1190 762 L1270 615 L1500 615 L1565 762" fill="none" stroke="#cfd3d6" stroke-width="22"/> <path d="M1700 742 L1848 805" stroke="#1f2021" stroke-width="26" stroke-linecap="round"/> <path d="M178 585 L710 585 L710 700 L672 700 L670 790 L632 790 L630 700 L215 700 L178 690 Z" fill="#161718"/> <path d="M305 665 Q318 528 475 520 Q632 528 648 665 Z" fill="#0f1011"/> <path d="M675 210 L675 600 L648 600 Q632 528 475 520 Q318 528 305 600 L215 600 L213 262 Q216 210 262 208 Z" fill="#a7a296" stroke="#6f6b62" stroke-width="5"/> <rect x="675" y="210" width="35" height="430" fill="#1f2021"/> <path d="M250 238 H445 V365 H250 Z" fill="url(#lv-sv-glass)" stroke="#1f2021" stroke-width="6"/> <rect x="495" y="238" width="147" height="132" rx="22" fill="url(#lv-sv-glass)" stroke="#1f2021" stroke-width="8"/> <path d="M455 222 V545" stroke="#77736a" stroke-width="4"/> <rect x="232" y="425" width="213" height="38" fill="#1f2021"/><rect x="468" y="425" width="189" height="38" fill="#1f2021"/> <rect x="400" y="428" width="30" height="10" rx="3" fill="#3b3d3f"/> <path d="M300 668 Q312 528 475 520 Q632 528 648 668" fill="none" stroke="#6e6f6d" stroke-width="26"/> <path d="M262 214 L238 240 L236 360" fill="none" stroke="#1f2021" stroke-width="7"/> <rect x="232" y="300" width="28" height="62" rx="10" fill="#1f2021"/> <rect x="175" y="478" width="42" height="112" rx="4" fill="#161718"/> <rect x="160" y="522" width="30" height="16" rx="4" fill="#e8962e"/> <rect x="145" y="608" width="72" height="80" rx="6" fill="#3a3c3e" stroke="#161718" stroke-width="4"/> <circle cx="264" cy="652" r="9" fill="#e8962e"/><circle cx="240" cy="622" r="7" fill="#3a3c3e"/> <path d="M222 690 L232 750 M290 690 L282 750" stroke="#161718" stroke-width="7" stroke-linecap="round"/> <circle cx="646" cy="706" r="9" fill="#e8962e"/> <circle cx="475" cy="772" r="140" fill="#1b1b1b"/><circle cx="475" cy="772" r="130.2" fill="none" stroke="#2a2a2a" stroke-width="7.0" stroke-dasharray="8.4 7.0"/><circle cx="475" cy="772" r="78.4" fill="#2b2d2f" stroke="#3a3d40" stroke-width="4"/><circle cx="475" cy="772" r="28.0" fill="#3a3d40"/><circle cx="519.8" cy="772.0" r="6.3" fill="#8b9095"/><circle cx="506.7" cy="803.7" r="6.3" fill="#8b9095"/><circle cx="475.0" cy="816.8" r="6.3" fill="#8b9095"/><circle cx="443.4" cy="803.7" r="6.3" fill="#8b9095"/><circle cx="430.2" cy="772.1" r="6.3" fill="#8b9095"/><circle cx="443.3" cy="740.4" r="6.3" fill="#8b9095"/><circle cx="474.9" cy="727.2" r="6.3" fill="#8b9095"/><circle cx="506.6" cy="740.2" r="6.3" fill="#8b9095"/> <circle cx="1385" cy="778" r="140" fill="#1b1b1b"/><circle cx="1385" cy="778" r="130.2" fill="none" stroke="#2a2a2a" stroke-width="7.0" stroke-dasharray="8.4 7.0"/><circle cx="1385" cy="778" r="78.4" fill="#2b2d2f" stroke="#3a3d40" stroke-width="4"/><circle cx="1385" cy="778" r="28.0" fill="#3a3d40"/><circle cx="1429.8" cy="778.0" r="6.3" fill="#8b9095"/><circle cx="1416.7" cy="809.7" r="6.3" fill="#8b9095"/><circle cx="1385.0" cy="822.8" r="6.3" fill="#8b9095"/><circle cx="1353.4" cy="809.7" r="6.3" fill="#8b9095"/><circle cx="1340.2" cy="778.1" r="6.3" fill="#8b9095"/><circle cx="1353.3" cy="746.4" r="6.3" fill="#8b9095"/><circle cx="1384.9" cy="733.2" r="6.3" fill="#8b9095"/><circle cx="1416.6" cy="746.2" r="6.3" fill="#8b9095"/> </g>`;
+const REAR_SVG = `<defs> <linearGradient id="lv-rv-alu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3e6e8"/><stop offset="1" stop-color="#a3a9ae"/></linearGradient> </defs> <g transform="scale(0.40098) translate(-67 -3)" stroke-linejoin="round"> <rect x="82" y="760" width="90" height="103" rx="14" fill="#1b1b1b"/> <rect x="553" y="760" width="92" height="103" rx="14" fill="#1b1b1b"/> <rect x="150" y="595" width="445" height="140" fill="#1f2021"/> <rect x="268" y="590" width="22" height="150" fill="url(#lv-rv-alu)"/><rect x="445" y="590" width="22" height="150" fill="url(#lv-rv-alu)"/> <rect x="80" y="575" width="72" height="200" fill="url(#lv-rv-alu)" stroke="#9aa0a5" stroke-width="3"/> <rect x="595" y="575" width="72" height="200" fill="url(#lv-rv-alu)" stroke="#9aa0a5" stroke-width="3"/> <rect x="90" y="733" width="566" height="30" rx="15" fill="url(#lv-rv-alu)" stroke="#9aa0a5" stroke-width="3"/> <rect x="70" y="5" width="606" height="458" rx="6" fill="#a7a296" stroke="#6f6b62" stroke-width="5"/> <rect x="90" y="24" width="566" height="420" rx="3" fill="none" stroke="#8f8a7f" stroke-width="3"/> <path d="M70 463 H676 V545 L660 560 H86 L70 545 Z" fill="#55524b" stroke="#3d3b36" stroke-width="4"/> <circle cx="86" cy="20" r="7" fill="#e23b2e"/><circle cx="660" cy="20" r="7" fill="#e23b2e"/> <rect x="100" y="560" width="550" height="38" fill="url(#lv-rv-alu)" stroke="#9aa0a5" stroke-width="3"/> <rect x="112" y="565" width="128" height="27" rx="3" fill="#f4f4f4" stroke="#333" stroke-width="2"/> <rect x="112" y="565" width="12" height="27" fill="#2f4fa3"/> <rect x="105" y="600" width="85" height="32" rx="3" fill="#c62828"/><rect x="105" y="600" width="26" height="32" rx="3" fill="#e8962e"/> <rect x="550" y="600" width="86" height="32" rx="3" fill="#c62828"/><rect x="610" y="600" width="26" height="32" rx="3" fill="#e8962e"/> <rect x="238" y="605" width="26" height="22" rx="2" fill="#d8dadb"/><rect x="476" y="605" width="26" height="22" rx="2" fill="#d8dadb"/> </g>`;
+
+const TL = {
+  de: { pitch: "Nicken", roll: "Rollen", front: "Front", rear: "Heck", left: "Fahrerseite", right: "Beifahrerseite",
+        level: "Waagerecht", raise: "anheben", side: "Seite", lengthwise: "Längs", sideways: "Seitlich", hint: "Hinweis", unavailable: "nicht verfügbar" },
+  en: { pitch: "Pitch", roll: "Roll", front: "Front", rear: "Rear", left: "Driver side", right: "Passenger side",
+        level: "Level", raise: "raise", side: "Side", lengthwise: "Lengthwise", sideways: "Sideways", hint: "Hint", unavailable: "unavailable" },
+};
+
+class HaLevelCard extends HTMLElement {
+  static DEFAULTS = {
+    wheelbase: 3500, track_width: 1900, bubble_range: 5, tolerance: 0.5, warn: 1.5,
+    show_views: true, show_bubble: true, show_values: true, show_hint: true,
+  };
+
+  static getStubConfig() {
+    return { pitch_entity: "sensor.technik_wasserwaage_truck_pitch", roll_entity: "sensor.technik_wasserwaage_truck_roll" };
+  }
+
+  static getConfigForm() {
+    const bool = (name) => ({ name, selector: { boolean: {} } });
+    const num = (name, min, max, step, unit) => ({ name, selector: { number: { min, max, step, unit_of_measurement: unit, mode: "box" } } });
+    return {
+      schema: [
+        { name: "pitch_entity", required: true, selector: { entity: { domain: "sensor" } } },
+        { name: "roll_entity", required: true, selector: { entity: { domain: "sensor" } } },
+        { name: "title", selector: { text: {} } },
+        { type: "grid", name: "", schema: [bool("show_views"), bool("show_bubble"), bool("show_values"), bool("show_hint")] },
+        { type: "expandable", name: "", title: "Fahrzeug & Grenzwerte", flatten: true, schema: [
+          { type: "grid", name: "", schema: [
+            num("wheelbase", 1000, 8000, 10, "mm"), num("track_width", 1000, 3000, 10, "mm"),
+            num("tolerance", 0.1, 5, 0.1, "°"), num("warn", 0.2, 10, 0.1, "°"), num("bubble_range", 1, 20, 1, "°"),
+          ] },
+        ] },
+        { type: "expandable", name: "", title: "Optionale Entitäten (statt Berechnung)", flatten: true, schema: [
+          { name: "height_long_entity", selector: { entity: { domain: "sensor" } } },
+          { name: "height_side_entity", selector: { entity: { domain: "sensor" } } },
+          { name: "hint_entity", selector: { entity: {} } },
+        ] },
+      ],
+      computeLabel: (s) => ({
+        pitch_entity: "Nicken (+ = Front höher)", roll_entity: "Rollen (+ = Fahrerseite höher)", title: "Titel",
+        show_views: "Fahrzeugansichten", show_bubble: "Libelle", show_values: "Werte", show_hint: "Hinweis",
+        wheelbase: "Radstand", track_width: "Spurweite", tolerance: "Toleranz (grün)", warn: "Warnschwelle (gelb)",
+        bubble_range: "Libelle Vollausschlag", height_long_entity: "Höhendifferenz längs", height_side_entity: "Höhendifferenz seitlich",
+        hint_entity: "Nivellierhinweis",
+      }[s.name]),
+    };
+  }
+
+  setConfig(config) {
+    if (!config.pitch_entity || !config.roll_entity) throw new Error("pitch_entity und roll_entity sind erforderlich");
+    this._config = { ...HaLevelCard.DEFAULTS, ...config };
+    this._sig = null;
+    if (!this.shadowRoot) this.attachShadow({ mode: "open" });
+    this._render();
+  }
+
+  getCardSize() { return 6; }
+  getGridOptions() { return { columns: 12, min_columns: 6, rows: "auto" }; }
+
+  set hass(hass) {
+    this._hass = hass;
+    const c = this._config;
+    const sig = [c.pitch_entity, c.roll_entity, c.height_long_entity, c.height_side_entity, c.hint_entity]
+      .map((e) => (e ? hass.states[e]?.state : "")).join("|");
+    if (sig === this._sig) return;
+    this._sig = sig;
+    this._render();
+  }
+
+  _t() { const l = (this._hass?.locale?.language || "de").slice(0, 2); return TL[l] || TL.en; }
+  _num(id) { const s = id && this._hass?.states[id]; const v = s ? parseFloat(s.state) : NaN; return isNaN(v) ? null : v; }
+  _fmt(v, d = 1) {
+    return v == null ? "–" : new Intl.NumberFormat(this._hass?.locale?.language || "de", { minimumFractionDigits: d, maximumFractionDigits: d }).format(v);
+  }
+  _cls(v) {
+    if (v == null) return "na";
+    const a = Math.abs(v);
+    return a <= this._config.tolerance ? "ok" : a <= this._config.warn ? "warn" : "bad";
+  }
+
+  _render() {
+    if (!this.shadowRoot || !this._config) return;
+    if (!this._hass) { this.shadowRoot.innerHTML = ""; return; }
+    const c = this._config, t = this._t();
+    const pitch = this._num(c.pitch_entity), roll = this._num(c.roll_entity);
+    const p = pitch ?? 0, r = roll ?? 0;
+
+    /* Höhendifferenzen: aus Entitäten oder aus Radstand/Spurweite (cm) */
+    const longCm = c.height_long_entity ? this._num(c.height_long_entity) : (pitch == null ? null : Math.tan(p * RAD) * c.wheelbase / 10);
+    const sideCm = c.height_side_entity ? this._num(c.height_side_entity) : (roll == null ? null : Math.tan(r * RAD) * c.track_width / 10);
+    let hint = c.hint_entity ? this._hass.states[c.hint_entity]?.state : null;
+    if (!hint && pitch != null && roll != null) {
+      const parts = [];
+      if (Math.abs(p) > c.tolerance) parts.push(`${p > 0 ? t.rear : t.front} ${this._fmt(Math.abs(longCm))} cm ${t.raise}`);
+      if (Math.abs(r) > c.tolerance) parts.push(`${r > 0 ? t.right : t.left} ${this._fmt(Math.abs(sideCm))} cm ${t.raise}`);
+      hint = parts.length ? parts.join(" · ") : t.level;
+    }
+
+    /* Ansichten */
+    const view = (svg, vb, ground, angle, label, value, cls, w) => {
+      const [x0, , vw] = vb.split(" ").map(Number);
+      return `
+      <div class="view">
+        <svg viewBox="${vb}" class="vsvg" style="max-width:${w}px">
+          <line x1="${x0}" y1="${ground}" x2="${x0 + vw}" y2="${ground}" class="horizon"/>
+          <g class="tilt" style="transform:rotate(${angle}deg)">${svg}</g>
+        </svg>
+        <div class="vlabel"><span>${label}</span><b class="${cls}">${this._fmt(value)}°</b></div>
+      </div>`;
+    };
+    const views = !c.show_views ? "" : `
+      <div class="views">
+        ${view(SIDE_SVG, "-15 -25 729 408", 357, p, t.pitch, pitch, this._cls(pitch), 420)}
+        ${view(REAR_SVG, "-15 -25 275 392", 345, -r, t.roll, roll, this._cls(roll), 170)}
+      </div>`;
+
+    /* Libelle: Blase wandert zur höheren Seite (oben = Front, links = Fahrerseite) */
+    const R = 62, k = R / c.bubble_range;
+    const clamp = (v) => Math.max(-c.bubble_range, Math.min(c.bubble_range, v));
+    const bx = 80 - clamp(r) * k, by = 80 - clamp(p) * k;
+    const worst = Math.max(Math.abs(p), Math.abs(r));
+    const bubble = !c.show_bubble ? "" : `
+      <svg viewBox="0 0 160 160" class="bubble">
+        <circle cx="80" cy="80" r="${R + 6}" class="vial"/>
+        <circle cx="80" cy="80" r="${R * c.warn / c.bubble_range}" class="ringw"/>
+        <circle cx="80" cy="80" r="${R * c.tolerance / c.bubble_range}" class="ringok"/>
+        <line x1="80" y1="${80 - R}" x2="80" y2="${80 + R}" class="cross"/><line x1="${80 - R}" y1="80" x2="${80 + R}" y2="80" class="cross"/>
+        <text x="80" y="${80 - R - 8}" class="bl">▲ ${t.front}</text>
+        ${pitch == null || roll == null ? "" : `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="13" class="bub ${this._cls(worst)}"/>`}
+      </svg>`;
+
+    const values = !c.show_values ? "" : `
+      <div class="vals">
+        <div><span>${t.lengthwise}</span><b class="${this._cls(pitch)}">${this._fmt(pitch)}°</b><em>${longCm == null ? "" : this._fmt(longCm) + " cm"}</em></div>
+        <div><span>${t.sideways}</span><b class="${this._cls(roll)}">${this._fmt(roll)}°</b><em>${sideCm == null ? "" : this._fmt(sideCm) + " cm"}</em></div>
+        ${c.show_hint && hint ? `<div class="hint ${worst <= c.tolerance ? "ok" : ""}">${hint}</div>` : ""}
+      </div>`;
+
+    this.shadowRoot.innerHTML = `
+<style>
+  :host { --ok: var(--success-color, #43a047); --warn: var(--warning-color, #f59e0b); --bad: var(--error-color, #e53935); }
+  ha-card { padding: 16px; container-type: inline-size; }
+  .title { font-size: 1.1em; font-weight: 500; margin-bottom: 8px; color: var(--primary-text-color); }
+  .views { display: flex; gap: 12px; align-items: flex-end; justify-content: center; }
+  .view { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+  .view:first-child { flex: 2.5; } .view:last-child { flex: 1; }
+  .vsvg { width: 100%; display: block; overflow: hidden; }
+  .tilt { transform-box: fill-box; transform-origin: 50% 100%; transition: transform .6s cubic-bezier(.3,.7,.3,1); }
+  .horizon { stroke: var(--secondary-text-color); stroke-width: 2; stroke-dasharray: 6 5; opacity: .6; }
+  .vlabel { display: flex; gap: 8px; align-items: baseline; color: var(--secondary-text-color); font-size: 13px; margin-top: 4px; }
+  .vlabel b { font-size: 20px; }
+  .lower { display: flex; gap: 16px; align-items: center; margin-top: 12px; }
+  .bubble { width: 150px; flex: none; }
+  .vial { fill: var(--secondary-background-color, rgba(127,127,127,.1)); stroke: var(--divider-color, #ccc); stroke-width: 2; }
+  .ringok { fill: none; stroke: var(--ok); stroke-width: 1.5; opacity: .8; }
+  .ringw { fill: none; stroke: var(--warn); stroke-width: 1.5; stroke-dasharray: 3 3; opacity: .8; }
+  .cross { stroke: var(--divider-color, #ccc); stroke-width: 1; }
+  .bl { font-size: 9px; letter-spacing: .05em; fill: var(--secondary-text-color); text-anchor: middle; }
+  .bub { stroke: rgba(0,0,0,.25); stroke-width: 1.5; transition: cx .6s, cy .6s; }
+  .bub.ok { fill: var(--ok); } .bub.warn { fill: var(--warn); } .bub.bad { fill: var(--bad); }
+  .vals { flex: 1; display: grid; gap: 8px; color: var(--primary-text-color); }
+  .vals > div:not(.hint) { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: baseline; }
+  .vals span { color: var(--secondary-text-color); font-size: 13px; }
+  .vals b { font-size: 22px; font-weight: 600; } .vals em { font-style: normal; color: var(--secondary-text-color); min-width: 64px; text-align: right; }
+  b.ok { color: var(--ok); } b.warn { color: var(--warn); } b.bad { color: var(--bad); }
+  .hint { padding: 8px 12px; border-radius: 10px; background: var(--secondary-background-color, rgba(127,127,127,.1)); font-size: 14px; }
+  .hint.ok { color: var(--ok); font-weight: 500; }
+  @container (max-width: 420px) { .lower { flex-direction: column; } .vals { width: 100%; } }
+  .warnmsg { color: var(--error-color, #db4437); }
+</style>
+<ha-card>
+  ${c.title ? `<div class="title">${c.title}</div>` : ""}
+  ${pitch == null || roll == null ? `<div class="warnmsg">${pitch == null ? c.pitch_entity : c.roll_entity}: ${t.unavailable}</div>` : ""}
+  ${views}
+  ${bubble || values ? `<div class="lower">${bubble}${values}</div>` : ""}
+</ha-card>`;
+  }
+}
+
+if (!customElements.get("ha-level-card")) {
+  customElements.define("ha-level-card", HaLevelCard);
+  window.customCards = window.customCards || [];
+  window.customCards.push({
+    type: "ha-level-card", name: "HA Compass – Nivellierung",
+    description: "Fahrzeugneigung mit Seiten-/Heckansicht, Libelle und Höhendifferenzen",
+    preview: false, documentationURL: "https://github.com/trinler007/HA-Compass",
+  });
 }

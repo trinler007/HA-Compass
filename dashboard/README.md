@@ -92,3 +92,30 @@ show_horizon: false
 
 Tippen auf den Kompass oder den Button schaltet die Ansicht um (bei `view: auto` für alle Anzeigen inkl. openHASP).
 Die Karte ist auch im visuellen Editor konfigurierbar.
+
+## Nivellier-Karte `ha-level-card`
+
+![Nivellierung](nivellierung-vorschau.png)
+
+Ersetzt van-tilt-card, realistic-bubble-level-card und die Werteliste in einer Karte: Seitenansicht (Nicken) und Heckansicht (Rollen) drehen mit,
+Libelle mit Toleranz- und Warnring, Werte farbig (grün ≤ Toleranz, gelb ≤ Warnschwelle, rot darüber), Höhendifferenzen in cm und Hinweis.
+
+```yaml
+type: custom:ha-level-card
+pitch_entity: sensor.technik_wasserwaage_truck_pitch   # + = Front höher
+roll_entity: sensor.technik_wasserwaage_truck_roll     # + = Fahrerseite höher
+title: Ausrichtung
+# optional – sonst aus Radstand/Spurweite berechnet:
+height_long_entity: sensor.technik_wasserwaage_hohendifferenz_langs
+height_side_entity: sensor.technik_wasserwaage_hohendifferenz_seitlich
+hint_entity: sensor.technik_wasserwaage_nivellier_hinweis
+```
+
+| Option | Standard | Wirkung |
+| --- | --- | --- |
+| `show_views`, `show_bubble`, `show_values`, `show_hint` | `true` | Ansichten, Libelle, Werte, Hinweis |
+| `wheelbase` / `track_width` | `3500` / `1900` mm | Basis für die berechneten Höhendifferenzen |
+| `tolerance` / `warn` | `0.5` / `1.5` ° | Farbgrenzen |
+| `bubble_range` | `5` ° | Vollausschlag der Libelle |
+
+Sobald der SCL3300 verbaut ist, liefert der Kompass-ESP Nicken und Rollen selbst – dann nur die Entitäten umstellen.
