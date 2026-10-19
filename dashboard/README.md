@@ -117,5 +117,9 @@ hint_entity: sensor.technik_wasserwaage_nivellier_hinweis
 | `wheelbase` / `track_width` | `3500` / `1886` mm | Basis für die berechneten Höhendifferenzen |
 | `tolerance` / `warn` | `0.5` / `1.5` ° | Farbgrenzen |
 | `bubble_range` | `5` ° | Vollausschlag der Libelle |
+| `invert_pitch` / `invert_roll` | `false` | Vorzeichen umkehren, falls der Sensor andersherum zählt |
+
+Drehrichtung: Nicken + (Front höher) dreht die Seitenansicht im Uhrzeigersinn, Rollen + (Fahrerseite höher) dreht die Heckansicht im Uhrzeigersinn
+(von hinten gesehen liegt die Fahrerseite links). Die Libellenblase wandert immer zur höheren Seite.
 
 Sobald der SCL3300 verbaut ist, liefert der Kompass-ESP Nicken und Rollen selbst – dann nur die Entitäten umstellen.

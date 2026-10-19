@@ -3,7 +3,7 @@
  * Teil von HA-Compass (Apache-2.0). Sonnen-/Mondberechnung: SunCalc-Port
  * (BSD-2-Clause, © 2014 Vladimir Agafonkin) – siehe NOTICE.
  */
-const CARD_VERSION = "0.4.1";
+const CARD_VERSION = "0.4.2";
 
 /* ------------------------------------------------------------ Astronomie (SunCalc) */
 const RAD = Math.PI / 180, DAY_MS = 86400000, J1970 = 2440588, J2000 = 2451545, E = RAD * 23.4397;
@@ -471,6 +471,7 @@ class HaLevelCard extends HTMLElement {
   static DEFAULTS = {
     wheelbase: 3500, track_width: 1886, bubble_range: 5, tolerance: 0.5, warn: 1.5,
     show_views: true, show_bubble: true, show_values: true, show_hint: true,
+    invert_pitch: false, invert_roll: false,
   };
 
   static getStubConfig() {
@@ -491,6 +492,7 @@ class HaLevelCard extends HTMLElement {
             num("wheelbase", 1000, 8000, 10, "mm"), num("track_width", 1000, 3000, 10, "mm"),
             num("tolerance", 0.1, 5, 0.1, "°"), num("warn", 0.2, 10, 0.1, "°"), num("bubble_range", 1, 20, 1, "°"),
           ] },
+          { type: "grid", name: "", schema: [bool("invert_pitch"), bool("invert_roll")] },
         ] },
         { type: "expandable", name: "", title: "Optionale Entitäten (statt Berechnung)", flatten: true, schema: [
           { name: "height_long_entity", selector: { entity: { domain: "sensor" } } },
@@ -503,7 +505,7 @@ class HaLevelCard extends HTMLElement {
         show_views: "Fahrzeugansichten", show_bubble: "Libelle", show_values: "Werte", show_hint: "Hinweis",
         wheelbase: "Radstand", track_width: "Spurweite", tolerance: "Toleranz (grün)", warn: "Warnschwelle (gelb)",
         bubble_range: "Libelle Vollausschlag", height_long_entity: "Höhendifferenz längs", height_side_entity: "Höhendifferenz seitlich",
-        hint_entity: "Nivellierhinweis",
+        hint_entity: "Nivellierhinweis", invert_pitch: "Nicken umkehren", invert_roll: "Rollen umkehren",
       }[s.name]),
     };
   }
@@ -544,7 +546,9 @@ class HaLevelCard extends HTMLElement {
     if (!this.shadowRoot || !this._config) return;
     if (!this._hass) { this.shadowRoot.innerHTML = ""; return; }
     const c = this._config, t = this._t();
-    const pitch = this._num(c.pitch_entity), roll = this._num(c.roll_entity);
+    const rawP = this._num(c.pitch_entity), rawR = this._num(c.roll_entity);
+    const pitch = rawP == null ? null : (c.invert_pitch ? -rawP : rawP);
+    const roll = rawR == null ? null : (c.invert_roll ? -rawR : rawR);
     const p = pitch ?? 0, r = roll ?? 0;
 
     /* Höhendifferenzen: aus Entitäten oder aus Radstand/Spurweite (cm) */
@@ -573,7 +577,7 @@ class HaLevelCard extends HTMLElement {
     const views = !c.show_views ? "" : `
       <div class="views">
         ${view(SIDE_SVG, "-15 -25 729 408", 357, p, t.pitch, pitch, this._cls(pitch), 420)}
-        ${view(REAR_SVG, "-15 -25 275 392", 345, -r, t.roll, roll, this._cls(roll), 170)}
+        ${view(REAR_SVG, "-15 -25 275 392", 345, r, t.roll, roll, this._cls(roll), 170)}
       </div>`;
 
     /* Libelle: Blase wandert zur höheren Seite (oben = Front, links = Fahrerseite) */

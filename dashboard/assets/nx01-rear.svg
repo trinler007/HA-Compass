@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 245 345" width="245" height="345">
   <!-- Enterprise NX-01 · Heckansicht. 1 Einheit = 10 mm, Breite 2450 mm.
-       Bodenlinie y = 345, Fahrerseite (links) links im Bild von hinten gesehen rechts!
-       Für Rollen: + = Fahrerseite höher → von hinten gesehen rechte Seite hoch → gegen den Uhrzeigersinn drehen. -->
+       Bodenlinie y = 345. Von hinten gesehen liegt die Fahrerseite (links) links im Bild.
+       Für Rollen: + = Fahrerseite höher → linke Bildseite hoch → im Uhrzeigersinn drehen. -->
   <defs>
     <linearGradient id="rv-alu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3e6e8"/><stop offset="1" stop-color="#a3a9ae"/></linearGradient>
   </defs>
