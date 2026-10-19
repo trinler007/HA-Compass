@@ -4,3 +4,4 @@ secrets.yaml
 *.3mf
 *.gcode
 .DS_Store
+vorschau.html

@@ -1,6 +1,7 @@
 // Seite 9: Kompass (HA Compass)
 {"page": 9, "id": 0, "prev": 6, "next": 1, "bg_color": "#2C3E50"}
 {"page": 9, "id": 1, "obj": "img", "src": "L:/terminal01-bg.png", "auto_size": 1, "h": 480, "w": 480, "zoom": 256, "x": 0, "y": 0, "swipe": 1, "to_back": 1}
+{"page": 9, "id": 6, "obj": "obj", "x": 12, "y": 69, "w": 336, "h": 336, "radius": 168, "bg_color": "#141A21", "bg_opa": 255, "border_width": 0, "click": 0}
 {"page": 9, "id": 2, "obj": "obj", "x": 35, "y": 92, "w": 290, "h": 290, "radius": 145, "bg_color": "#1F2A36", "border_width": 2, "border_color": "#3C5268", "click": 0}
 {"page": 9, "id": 3, "obj": "linemeter", "x": 35, "y": 92, "w": 290, "h": 290, "angle": 360, "line_count": 73, "min": 0, "max": 100, "val": 100, "scale_width": 9, "line_width": 2, "line_color": "#B7C9D8", "scale_end_color": "#B7C9D8", "scale_grad_color": "#B7C9D8", "scale_end_line_width": 2, "bg_opa": 0, "border_width": 0, "pad_top": 0, "pad_bottom": 0, "pad_left": 0, "pad_right": 0, "click": 0}
 {"page": 9, "id": 5, "obj": "linemeter", "x": 35, "y": 92, "w": 290, "h": 290, "angle": 360, "line_count": 5, "min": 0, "max": 100, "val": 100, "scale_width": 20, "line_width": 4, "line_color": "#FFFFFF", "scale_end_color": "#FFFFFF", "scale_grad_color": "#FFFFFF", "scale_end_line_width": 4, "bg_opa": 0, "border_width": 0, "pad_top": 0, "pad_bottom": 0, "pad_left": 0, "pad_right": 0, "click": 0}

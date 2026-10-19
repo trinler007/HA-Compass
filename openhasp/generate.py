@@ -61,6 +61,11 @@ def bind(id_, props=None, event=None):
 jsonl.append({"page": P, "id": 0, "prev": 6, "next": 1, "bg_color": BG})
 obj(1, obj="img", src="L:/terminal01-bg.png", auto_size=1, h=480, w=480, zoom=256, x=0, y=0, swipe=1, to_back=1)
 
+# Dunkler Hintergrundkreis für Sonnenbahn und Marker (liegt hinter allem)
+R_BG = 168
+obj(6, obj="obj", x=CX - R_BG, y=CY - R_BG, w=2 * R_BG, h=2 * R_BG, radius=R_BG,
+    bg_color="#141A21", bg_opa=255, border_width=0, click=0)
+
 # Scheibe + Skala
 obj(2, obj="obj", x=CX - R_TICK, y=CY - R_TICK, w=2 * R_TICK, h=2 * R_TICK, radius=R_TICK,
     bg_color=CARD, border_width=2, border_color="#3C5268", click=0)
