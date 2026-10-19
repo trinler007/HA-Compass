@@ -52,13 +52,35 @@ Sie folgt dem HA-Theme (hell/dunkel) und ordnet sich ab ca. 520 px Kartenbreite 
 ```yaml
 type: custom:ha-compass-card
 heading_entity: sensor.camper_kompass_ausrichtung_geografisch
-title: Kompass            # optional
-view: auto                # auto = folgt select.ha_compass_ansicht | vehicle | ring
-show_info: true           # Infospalte
-show_horizon: true        # Sonnenverlauf über den Tag (ersetzt die Horizon Card)
-show_moon_path: true      # Mondverlauf im Horizontstreifen
-vehicle_image: /local/mein-fahrzeug.png   # optional, eigenes Bild (Front oben)
+title: Kompass
 ```
+
+Alle Elemente lassen sich einzeln ein- und ausblenden (Standard: alles an) – im visuellen Editor in den Abschnitten *Kompass*, *Infospalte* und *Horizontverlauf*:
+
+| Option | Standard | Wirkung |
+| --- | --- | --- |
+| `view` | `auto` | `auto` = folgt `select.ha_compass_ansicht`, `vehicle` = Fahrzeug dreht, `ring` = Ring dreht |
+| `show_compass` | `true` | Kompass komplett |
+| `show_vehicle`, `show_ticks`, `show_cardinals` | `true` | Fahrzeug, Skala, Himmelsrichtungen |
+| `show_sun`, `show_sun_path`, `show_moon` | `true` | Sonne mit Richtungsstrahl, Sonnenbahn, Mond |
+| `show_bow_marker` | `true` | Markierung „vorne“ im Modus *Ring dreht* |
+| `tap_action` | `toggle_view` | `toggle_view` oder `none` |
+| `compass_size` | – | maximale Kompassgröße in px |
+| `vehicle_image` | – | eigenes Fahrzeugbild (URL, Front oben) |
+| `show_info` | `true` | Infospalte komplett |
+| `show_heading`, `show_sun_info`, `show_moon_info`, `show_shade`, `show_view_button` | `true` | einzelne Blöcke der Infospalte |
+| `show_horizon`, `show_moon_path` | `true` | Horizontverlauf, Mondkurve darin |
+
+Beispiel – nur der Ring für eine Unterseite:
+
+```yaml
+type: custom:ha-compass-card
+heading_entity: sensor.camper_kompass_ausrichtung_geografisch
+show_info: false
+show_horizon: false
+```
+
+![Varianten](karte-varianten.png)
 
 Tippen auf den Kompass oder den Button schaltet die Ansicht um (bei `view: auto` für alle Anzeigen inkl. openHASP).
 Die Karte ist auch im visuellen Editor konfigurierbar.

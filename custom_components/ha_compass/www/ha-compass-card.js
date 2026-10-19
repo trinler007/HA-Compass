@@ -3,7 +3,7 @@
  * Teil von HA-Compass (Apache-2.0). Sonnen-/Mondberechnung: SunCalc-Port
  * (BSD-2-Clause, © 2014 Vladimir Agafonkin) – siehe NOTICE.
  */
-const CARD_VERSION = "0.2.1";
+const CARD_VERSION = "0.3.0";
 
 /* ------------------------------------------------------------ Astronomie (SunCalc) */
 const RAD = Math.PI / 180, DAY_MS = 86400000, J1970 = 2440588, J2000 = 2451545, E = RAD * 23.4397;
@@ -82,6 +82,7 @@ class HaCompassCard extends HTMLElement {
   }
 
   static getConfigForm() {
+    const bool = (name) => ({ name, selector: { boolean: {} } });
     return {
       schema: [
         { name: "heading_entity", required: true, selector: { entity: { domain: "sensor" } } },
@@ -89,30 +90,60 @@ class HaCompassCard extends HTMLElement {
         { name: "view", selector: { select: { mode: "dropdown", options: [
           { value: "auto", label: "Aus HA (select.ha_compass_ansicht)" },
           { value: "vehicle", label: "Fahrzeug dreht" }, { value: "ring", label: "Ring dreht" } ] } } },
-        { type: "grid", name: "", schema: [
-          { name: "show_info", selector: { boolean: {} } },
-          { name: "show_horizon", selector: { boolean: {} } },
-          { name: "show_moon_path", selector: { boolean: {} } },
+        { type: "expandable", name: "", title: "Kompass", flatten: true, schema: [
+          { type: "grid", name: "", schema: [
+            bool("show_compass"), bool("show_vehicle"), bool("show_ticks"), bool("show_cardinals"),
+            bool("show_sun"), bool("show_sun_path"), bool("show_moon"), bool("show_bow_marker"),
+          ] },
+          { name: "tap_action", selector: { select: { mode: "dropdown", options: [
+            { value: "toggle_view", label: "Ansicht umschalten" }, { value: "none", label: "Keine" } ] } } },
+          { name: "compass_size", selector: { number: { min: 120, max: 800, step: 10, unit_of_measurement: "px", mode: "box" } } },
+          { name: "vehicle_image", selector: { text: {} } },
         ] },
-        { name: "vehicle_image", selector: { text: {} } },
+        { type: "expandable", name: "", title: "Infospalte", flatten: true, schema: [
+          { type: "grid", name: "", schema: [
+            bool("show_info"), bool("show_heading"), bool("show_sun_info"), bool("show_moon_info"),
+            bool("show_shade"), bool("show_view_button"),
+          ] },
+        ] },
+        { type: "expandable", name: "", title: "Horizontverlauf", flatten: true, schema: [
+          { type: "grid", name: "", schema: [ bool("show_horizon"), bool("show_moon_path") ] },
+        ] },
       ],
       computeLabel: (s) => ({
         heading_entity: "Ausrichtung (Entität)", title: "Titel", view: "Ansicht",
-        show_info: "Infospalte", show_horizon: "Horizontverlauf", show_moon_path: "Mondverlauf im Horizont",
+        show_compass: "Kompass", show_vehicle: "Fahrzeug", show_ticks: "Skala", show_cardinals: "Himmelsrichtungen",
+        show_sun: "Sonne", show_sun_path: "Sonnenbahn", show_moon: "Mond", show_bow_marker: "Bug-Markierung (Ring dreht)",
+        tap_action: "Tippen auf den Kompass", compass_size: "Max. Kompassgröße",
         vehicle_image: "Eigenes Fahrzeugbild (URL, Front oben)",
+        show_info: "Infospalte", show_heading: "Ausrichtung", show_sun_info: "Sonne", show_moon_info: "Mond",
+        show_shade: "Schatten", show_view_button: "Umschalter Ansicht",
+        show_horizon: "Horizontverlauf", show_moon_path: "Mondverlauf",
       }[s.name]),
     };
   }
 
+  static DEFAULTS = {
+    view: "auto", tap_action: "toggle_view",
+    show_compass: true, show_vehicle: true, show_ticks: true, show_cardinals: true,
+    show_sun: true, show_sun_path: true, show_moon: true, show_bow_marker: true,
+    show_info: true, show_heading: true, show_sun_info: true, show_moon_info: true,
+    show_shade: true, show_view_button: true,
+    show_horizon: true, show_moon_path: true,
+  };
+
   setConfig(config) {
     if (!config.heading_entity) throw new Error("heading_entity fehlt");
-    this._config = { view: "auto", show_info: true, show_horizon: true, show_moon_path: true, ...config };
+    this._config = { ...HaCompassCard.DEFAULTS, ...config };
     this._sig = null;
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
     this._render();
   }
 
-  getCardSize() { return this._config?.show_horizon === false ? 5 : 7; }
+  getCardSize() {
+    const c = this._config || {};
+    return (c.show_compass ? 5 : 0) + (c.show_info && !c.show_compass ? 4 : 0) + (c.show_horizon ? 2 : 0) || 1;
+  }
   getGridOptions() { return { columns: 12, min_columns: 6, rows: "auto" }; }
 
   set hass(hass) {
@@ -188,7 +219,8 @@ class HaCompassCard extends HTMLElement {
     const t = this._t();
     if (!this._hass) { this.shadowRoot.innerHTML = ""; return; }
 
-    const heading = this._num(this._config.heading_entity);
+    const cfg = this._config;
+    const heading = this._num(cfg.heading_entity);
     const mode = this._viewMode();
     const h = heading ?? 0;
     const ringRot = mode === "ring" ? this._smooth("ring", -h) : this._smooth("ring", 0);
@@ -244,31 +276,32 @@ class HaCompassCard extends HTMLElement {
       : `<g transform="scale(${(250 / 711).toFixed(4)}) translate(-122.5 -349.5)">${VEHICLE_SVG}</g>`;
 
     const compass = `
-<svg class="compass" viewBox="0 0 400 400" role="img" aria-label="${t.heading} ${fmt(heading)}°">
+<svg class="compass${cfg.tap_action === "none" ? " notap" : ""}" style="${cfg.compass_size ? `max-width:${cfg.compass_size}px` : ""}" viewBox="0 0 400 400" role="img" aria-label="${t.heading} ${fmt(heading)}°">
   <circle cx="${C}" cy="${C}" r="${RS + 14}" class="bezel"/>
   <circle cx="${C}" cy="${C}" r="${R}" class="face"/>
   <g class="rot" style="transform:rotate(${ringRot}deg)">
-    ${sunPath}${ticks}${labels}${sunRay}${sunMark}${moonMark}
+    ${cfg.show_sun_path ? sunPath : ""}${cfg.show_ticks ? ticks : ""}${cfg.show_cardinals ? labels : ""}${cfg.show_sun ? sunRay + sunMark : ""}${cfg.show_moon ? moonMark : ""}
   </g>
-  <g class="rot" style="transform:rotate(${vehRot}deg)"><g transform="translate(${C} ${C})">${veh}</g></g>
-  ${mode === "ring" ? `<path d="M${C} ${C - RS - 4}l-8 -11h16z" class="bow"/>` : ""}
+  ${cfg.show_vehicle ? `<g class="rot" style="transform:rotate(${vehRot}deg)"><g transform="translate(${C} ${C})">${veh}</g></g>` : ""}
+  ${mode === "ring" && cfg.show_bow_marker ? `<path d="M${C} ${C - RS - 4}l-8 -11h16z" class="bow"/>` : ""}
 </svg>`;
 
     /* ---------- Infospalte */
     const dir = heading == null ? "" : t.dirs[Math.floor(((h % 360) + 11.25) / 22.5) % 16];
     const relTxt = rel == null || sunEl == null || sunEl <= 0 ? "" :
       `${t.sun} ${fmt(Math.abs(rel))}° ${rel > 0 ? t.rel_r : t.rel_l} ${t.bow}`;
-    const info = !this._config.show_info ? "" : `
+    const showInfo = cfg.show_info && (cfg.show_heading || cfg.show_sun_info || cfg.show_moon_info || cfg.show_shade || cfg.show_view_button);
+    const info = !showInfo ? "" : `
 <div class="info">
-  <div class="lbl">${t.heading}</div>
-  <div class="big">${heading == null ? "–" : fmt(((h % 360) + 360) % 360)}<span class="deg">°</span> <span class="dir">${dir}</span></div>
-  <div class="row"><span class="dot sun"></span>${t.sun} <b>${fmt(sunAz)}°</b> · ${fmt(sunEl)}°</div>
-  <div class="row sub">↑ ${this._hm(this._time(E_.rise))} · ${fmt(riseAz)}° &nbsp; ↓ ${this._hm(this._time(E_.set))} · ${fmt(setAz)}°</div>
-  <div class="row"><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" class="moondark"/><path d="${moonPath(12, 12, 9, phaseVal)}" class="moonlit"/></svg>${t.moon} <b>${fmt(moonAz)}°</b> · ${fmt(moonEl)}°</div>
+  ${cfg.show_heading ? `<div class="lbl">${t.heading}</div>
+  <div class="big">${heading == null ? "–" : fmt(((h % 360) + 360) % 360)}<span class="deg">°</span> <span class="dir">${dir}</span></div>` : ""}
+  ${cfg.show_sun_info ? `<div class="row"><span class="dot sun"></span>${t.sun} <b>${fmt(sunAz)}°</b> · ${fmt(sunEl)}°</div>
+  <div class="row sub">↑ ${this._hm(this._time(E_.rise))} · ${fmt(riseAz)}° &nbsp; ↓ ${this._hm(this._time(E_.set))} · ${fmt(setAz)}°</div>` : ""}
+  ${cfg.show_moon_info ? `<div class="row"><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" class="moondark"/><path d="${moonPath(12, 12, 9, phaseVal)}" class="moonlit"/></svg>${t.moon} <b>${fmt(moonAz)}°</b> · ${fmt(moonEl)}°</div>
   <div class="row sub">${t.phases[phaseKey] || ""}${illum != null ? ` · ${fmt(illum)} %` : ""}</div>
-  <div class="row sub">↑ ${this._hm(this._time(E_.moonRise))} &nbsp; ↓ ${this._hm(this._time(E_.moonSet))}</div>
-  ${relTxt ? `<div class="shade"><div class="lbl">${t.shade}</div><div class="sv">${t.shadeText[shade] || "–"}</div><div class="sub">${relTxt}</div></div>` : ""}
-  <button class="view" title="Ansicht umschalten">${mode === "vehicle" ? t.view_vehicle : t.view_ring}</button>
+  <div class="row sub">↑ ${this._hm(this._time(E_.moonRise))} &nbsp; ↓ ${this._hm(this._time(E_.moonSet))}</div>` : ""}
+  ${cfg.show_shade && relTxt ? `<div class="shade"><div class="lbl">${t.shade}</div><div class="sv">${t.shadeText[shade] || "–"}</div><div class="sub">${relTxt}</div></div>` : ""}
+  ${cfg.show_view_button ? `<button class="view" title="Ansicht umschalten">${mode === "vehicle" ? t.view_vehicle : t.view_ring}</button>` : ""}
 </div>`;
 
     /* ---------- Horizontverlauf */
@@ -319,7 +352,10 @@ class HaCompassCard extends HTMLElement {
   .title { font-size: 1.1em; font-weight: 500; margin: 0 0 8px; color: var(--primary-text-color); }
   .main { display: flex; flex-direction: column; align-items: center; gap: 12px; }
   @container (min-width: 520px) { .main { flex-direction: row; align-items: center; } .compass { flex: 0 0 58%; } }
-  .compass { width: 100%; max-width: 420px; cursor: pointer; display: block; }
+  .compass { width: 100%; max-width: 420px; cursor: pointer; display: block; margin: 0 auto; }
+  .compass.notap { cursor: default; }
+  .main.single { flex-direction: column !important; }
+  .main.single .compass { flex: none !important; }
   .bezel { fill: var(--secondary-background-color, rgba(127,127,127,.08)); }
   .face { fill: var(--card-background-color, #fff); stroke: var(--divider-color, #ddd); stroke-width: 2; }
   .tk { stroke: var(--primary-text-color); } .tm { stroke: var(--secondary-text-color); opacity: .7; }
@@ -365,10 +401,10 @@ class HaCompassCard extends HTMLElement {
 <ha-card>
   ${this._config.title ? `<div class="title">${this._config.title}</div>` : ""}
   ${heading == null ? `<div class="warn">${this._config.heading_entity}: ${t.unavailable}</div>` : ""}
-  <div class="main">${compass}${info}</div>
+  ${cfg.show_compass || info ? `<div class="main${cfg.show_compass && info ? "" : " single"}">${cfg.show_compass ? compass : ""}${info}</div>` : ""}
   ${horizon}
 </ha-card>`;
-    this.shadowRoot.querySelector(".compass")?.addEventListener("click", () => this._toggleView());
+    if (cfg.tap_action !== "none") this.shadowRoot.querySelector(".compass")?.addEventListener("click", () => this._toggleView());
     this.shadowRoot.querySelector(".view")?.addEventListener("click", () => this._toggleView());
   }
 }
