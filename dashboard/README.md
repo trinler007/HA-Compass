@@ -46,7 +46,7 @@ und keine Mondposition liefern. Im Wohnmobil muss mit der GPS-Position gerechnet
 
 ![Vorschau](karte-vorschau.png)
 
-Die Karte wird von der Integration mitgeliefert und automatisch in allen Dashboards geladen – keine Ressource, keine separate HACS-Installation.
+Die Karte wird von der Integration mitgeliefert und beim Start automatisch als Dashboard-Ressource (`/ha_compass/ha-compass-card.js`, JavaScript-Modul) eingetragen – keine separate HACS-Installation. Bei Dashboards im YAML-Modus die Ressource von Hand eintragen. Nach Updates einmal die Seite ohne Cache neu laden.
 Sie folgt dem HA-Theme (hell/dunkel) und ordnet sich ab ca. 520 px Kartenbreite nebeneinander an, darunter untereinander.
 
 ```yaml

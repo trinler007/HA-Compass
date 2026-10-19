@@ -1,13 +1,21 @@
 {
   "domain": "ha_compass",
   "name": "HA Compass",
-  "codeowners": ["@trinler007"],
+  "codeowners": [
+    "@trinler007"
+  ],
   "config_flow": true,
-  "dependencies": ["frontend", "http"],
+  "dependencies": [
+    "frontend",
+    "http"
+  ],
   "documentation": "https://github.com/trinler007/HA-Compass",
   "integration_type": "service",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/trinler007/HA-Compass/issues",
   "requirements": [],
-  "version": "0.2.0"
+  "version": "0.2.1",
+  "after_dependencies": [
+    "lovelace"
+  ]
 }
