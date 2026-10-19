@@ -11,7 +11,7 @@ P = int(sys.argv[2]) if len(sys.argv) > 2 else 9
 
 HEADING = "sensor.camper_kompass_ausrichtung_geografisch"
 VIEW = "select.ha_compass_ansicht"
-CX, CY = 180, 237          # Kompassmitte
+CX, CY = 177, 237          # Kompassmitte
 R_TICK, R_LBL, R_SUN = 145, 108, 160
 VEH_ZOOM = 232            # 256 = 100 %; Fahrzeug ~178 px lang
 BG, CARD, FG, SUB, AMBER, MOON = "#2C3E50", "#1F2A36", "#FFFFFF", "#B7C9D8", "#F59E0B", "#CBD5E1"
@@ -121,7 +121,7 @@ bind(23, {"x": j_xy(MOON_AZ, R_SUN, 16, "x"), "y": j_xy(MOON_AZ, R_SUN, 16, "y")
           "hidden": f"{{{{ 1 if {MOON_EL} <= 0 else 0 }}}}"})
 
 # Infospalte rechts
-X = 348
+X = 351
 def lbl(oid, y, text, font=20, color=FG, w=120, x=X, align=0):
     obj(oid, obj="label", x=x, y=y, w=w, h=font + 8, text=text, align=align, text_font=font,
         text_color=color, bg_opa=0, click=0)
