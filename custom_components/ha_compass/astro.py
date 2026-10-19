@@ -1,4 +1,7 @@
-"""Sonnen- und Mondberechnung (Python-Port von SunCalc, BSD-2, Vladimir Agafonkin).
+"""Sonnen- und Mondberechnung.
+
+Python-Port von SunCalc (https://github.com/mourner/suncalc),
+Copyright (c) 2014, Vladimir Agafonkin, BSD-2-Clause – Lizenztext siehe NOTICE.
 
 Azimut im Kompasssystem: 0° = Nord, 90° = Ost. Höhe in Grad, Mondhöhe inkl. Refraktion.
 Genauigkeit für Anzeigezwecke ausreichend (Sonne < 0,1°, Mond ca. 0,5°).

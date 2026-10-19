@@ -85,3 +85,8 @@ Gerechnet wird mit der HA-Heimatposition (im Fahrzeug per GPS nachgeführt).
 - [x] Integration HA Compass (Sonne, Mond, Schattenseite, Ansicht)
 - [x] openHASP-Seite
 - [ ] Lovelace-Karte (ersetzt Horizon Card)
+
+## Lizenz
+
+Apache License 2.0 – siehe [LICENSE](LICENSE).
+Die Sonnen- und Mondberechnung basiert auf [SunCalc](https://github.com/mourner/suncalc) (BSD-2-Clause, © Vladimir Agafonkin) – siehe [NOTICE](NOTICE).
