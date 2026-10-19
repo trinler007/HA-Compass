@@ -28,10 +28,11 @@
 
     <!-- Fahrerhaus -->
     <rect x="8" y="8" width="229" height="208" rx="14" fill="#5f6249" stroke="#2f3126" stroke-width="2"/>
-    <rect x="22" y="22" width="201" height="180" rx="8" fill="#7c8277" stroke="#4b4f43" stroke-width="1.5"/>
-    <path d="M122.5 24V200" stroke="#5f6458" stroke-width="1.5"/>
-    <rect x="40" y="96" width="62" height="70" rx="4" fill="#8d9389" stroke="#5f6458" stroke-width="1.5"/>
-    <path d="M40 131H102" stroke="#5f6458" stroke-width="1.2"/>
+    <rect x="22" y="22" width="201" height="180" rx="10" fill="#7c8277" stroke="#4b4f43" stroke-width="1.5"/>
+    <!-- Dachprofil mit Sicken (mittig) -->
+    <rect x="70" y="34" width="105" height="156" rx="10" fill="#80867b" stroke="#62675b" stroke-width="2"/>
+    <rect x="78" y="42" width="89" height="140" rx="7" fill="#868c81" stroke="#5c6155" stroke-width="1.5"/>
+    <rect x="85" y="49" width="75" height="126" rx="5" fill="#8a9085" stroke="#6b7064" stroke-width="1"/>
 
     <!-- Übergang -->
     <rect x="30" y="216" width="185" height="14" fill="#2a2c23"/>
@@ -54,9 +55,21 @@
     <rect x="76" y="566" width="88" height="66" rx="5" fill="#f4f7f8" stroke="#aab4b9" stroke-width="2"/>
     <rect x="83" y="573" width="74" height="52" rx="3" fill="url(#glass)"/>
 
-    <!-- Lüfter -->
-    <circle cx="210" cy="590" r="7" fill="#3a3f45" stroke="#aab4b9" stroke-width="2"/>
-    <circle cx="210" cy="616" r="5" fill="#3a3f45" stroke="#aab4b9" stroke-width="2"/>
+    <!-- Aufbauten rechts (in einer Flucht, von vorn nach hinten) -->
+    <!-- 5G-Antenne (Panorama LGMDM4), weiß -->
+    <circle cx="214" cy="574" r="9" fill="#fbfcfd" stroke="#8c979d" stroke-width="1.8"/>
+    <circle cx="214" cy="574" r="3.5" fill="#d9dee1"/>
+    <!-- WiFi-Antenne, weiß lackiert -->
+    <circle cx="214" cy="600" r="5" fill="#fbfcfd" stroke="#8c979d" stroke-width="1.8"/>
+    <!-- Kathrein HDZ 100 Kabel-Dachdurchführung -->
+    <rect x="207" y="614" width="14" height="22" rx="7" fill="#f1f3f4" stroke="#8c979d" stroke-width="1.8"/>
+    <!-- Starlink Mini -->
+    <rect x="158" y="649" width="30" height="27" rx="3" fill="#dfe3e6" stroke="#7e898f" stroke-width="1.8"/>
+    <rect x="162" y="653" width="22" height="19" rx="2" fill="#eef1f3"/>
+    <!-- LoRa: Magnetfußantenne auf Blech 35 × 35 cm -->
+    <rect x="197" y="645" width="35" height="35" rx="2" fill="#f7f9fa" stroke="#a3adb2" stroke-width="1.5"/>
+    <circle cx="214.5" cy="662.5" r="6" fill="#26292d" stroke="#5c6166" stroke-width="1"/>
+    <circle cx="214.5" cy="662.5" r="1.8" fill="#9aa1a7"/>
 
     <!-- Heck -->
     <rect x="16" y="690" width="213" height="9" rx="3" fill="#3a3c30" stroke="#262820" stroke-width="1.5"/>
