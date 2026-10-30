@@ -31,7 +31,7 @@ Ist *Magnetfeld Z roh* deutlich **positiv** → `z_sign: "1.0"`, sonst `"-1.0"`.
 Praktisch: Y roh in zwei Fahrzeugrichtungen vergleichen (z. B. Nord und Ost). Wird Y beim Drehen im Uhrzeigersinn (Nord → Ost) **kleiner** → `y_sign: "1.0"`, sonst `"-1.0"`.
 
 Wegen der Kopfüber-Montage landen voraussichtlich beide Werte bei `-1.0`.
-Nach Änderung neu flashen.
+Eintragen unter `substitutions:` in der Gerätedatei, dann neu flashen.
 
 ## 3. Störtest am Einbauort
 
@@ -65,8 +65,9 @@ Größere Abweichungen im Stand deuten auf Störungen, die nur während der Fahr
 
 ## Neigungssensor SCL3300
 
-Die Neigung kommt per Paket in `esphome/camper-kompass.yaml`:
-`packages/neigung-scl3300.yaml` (SCL3300 im Gehäuse) oder `packages/neigung-homeassistant.yaml` (vorhandene Wasserwaage in HA).
+Die Neigungsquelle wird in der Gerätedatei `esphome/kompass.yaml` unter `packages: … files:` gewählt:
+`esphome/packages/neigung-scl3300.yaml` (SCL3300 im Gehäuse) oder `esphome/packages/neigung-homeassistant.yaml` (vorhandene Wasserwaage in HA) – immer genau eines.
+Solange der SCL3300 nicht aufgesteckt ist, das HA-Paket verwenden; sonst meldet die Komponente beim Start einen Fehler.
 Die Komponente `scl3300` wird beim Kompilieren automatisch aus diesem Repository geladen (`external_components`).
 
 1. **Aufstecken und flashen.** Im Log muss beim Start stehen: `SCL3300 erkannt (WHOAMI 0xC1), Modus 1`.
@@ -75,7 +76,7 @@ Die Komponente `scl3300` wird beim Kompilieren automatisch aus diesem Repository
    - **oben:** Die Achse, die in Einbaulage ≈ ±1 g zeigt. +1 g → `scl_up: "+…"`, −1 g → `"-…"`.
    - **vorne:** Gehäuse vor dem Festschrauben an der FRONT-Seite leicht anheben. Die Achse, deren Wert dabei steigt → `"+…"`, fällt → `"-…"`.
    - **links:** ergibt sich aus der Rechte-Hand-Regel (oben × vorne). Meldet ESPHome beim Kompilieren „gespiegelt“, das Vorzeichen von `scl_left` umkehren.
-   - Eintragen unter `substitutions:` in der Hauptdatei (überschreibt die Standardwerte des Pakets).
+   - Eintragen unter `substitutions:` in der Gerätedatei (überschreibt die Standardwerte des Pakets).
    - Kontrolle: Im Log warnt `Achse 'up' misst … g`, wenn „oben“ falsch ist.
 3. **Plausibilität:** *Neigung längs* wird positiv, wenn die Front höher steht; *Neigung seitlich* positiv, wenn die Fahrerseite höher steht.
 4. **Nullpunkt:** Fahrzeug auf nachweislich ebenem Grund (z. B. mit der bisherigen Wasserwaage bei 0,0°/0,0°) abstellen,

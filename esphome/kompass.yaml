@@ -1,0 +1,65 @@
+# =====================================================================
+#  HA-Compass – Gerätekonfiguration für den ESPHome Builder
+#  Nur Gerätedaten und Einstellwerte; die Logik kommt direkt von GitHub.
+# =====================================================================
+substitutions:
+  name: kompass
+  friendly_name: Kompass
+
+  # Magnetometer: Achsen-Vorzeichen in Einbaulage (docs/inbetriebnahme.md)
+  y_sign: "1.0"
+  z_sign: "1.0"
+
+  # Neigungssensor SCL3300: Sensorachsen Richtung vorne / links / oben
+  scl_forward: "+y"
+  scl_left: "+x"
+  scl_up: "-z"
+
+  # Fahrzeug
+  wheelbase_mm: "3500"
+  track_width_mm: "1886"
+
+  # Weitere Werte mit Standard (bei Bedarf hier überschreiben):
+  # vertical_field_ut: "43.5"
+  # gps_course_entity: sensor.nx_01_position_gps_course
+  # gps_speed_entity: sensor.nx_01_position_gps_speed
+  # gps_hdop_entity: sensor.technik_nx01_gw01_gps_genauigkeit_hdop
+  # nmea_status_entity: binary_sensor.technik_nx01_gw01_nmea_tcp_status
+
+packages:
+  ha_compass:
+    url: https://github.com/trinler007/HA-Compass
+    ref: main
+    refresh: 1d
+    files:
+      - esphome/packages/kompass-basis.yaml
+      - esphome/packages/neigung-scl3300.yaml          # Neigung vom SCL3300 im Gehäuse
+      # - esphome/packages/neigung-homeassistant.yaml  # alternativ: Wasserwaage aus HA
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+
+logger:
+
+api:
+  encryption:
+    key: !secret kompass__encryption_key
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Kompass Fallback"
+    password: !secret fallback_password
+
+web_server:
+  version: 3

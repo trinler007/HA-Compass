@@ -15,7 +15,7 @@ Der Kompass liefert die Ausrichtung des Fahrzeugs in Grad – magnetisch und geo
 | --- | --- |
 | Magnetfeldmessung | Memsic MMC5603 (20 Bit, Auto-Set/Reset gegen Restmagnetisierung) |
 | Hard-Iron-Kalibrierung | Kreisfahrt per Start-/Stopp-Button in HA, Plausibilitätsprüfung mit Rollback |
-| Neigungskompensation | Nicken/Rollen aus dem vorhandenen Wasserwaagen-Sensor in HA |
+| Neigungskompensation | Nicken/Rollen vom SCL3300 im Gehäuse (alternativ Wasserwaagen-Sensor aus HA) |
 | Z-Offset | Einmalig per Button auf ebenem Grund |
 | Missweisung & Einbauwinkel | **Automatischer GPS-Abgleich** während der Fahrt (Kurs aus dem RUTX50 über [HA-Teltonika](https://github.com/trinler007/HA-Teltonika), NMEA-Stream) |
 | Ausgabe | `Ausrichtung magnetisch`, `Ausrichtung geografisch` (0° = Nord, 90° = Ost) |
@@ -28,8 +28,8 @@ Der Kompass liefert die Ausrichtung des Fahrzeugs in Grad – magnetisch und geo
 ├── openhasp/                       openHASP-Seite 480 × 480
 ├── dashboard/                      Fahrzeuggrafik, Konzept
 ├── esphome/
-│   ├── camper-kompass.yaml        ESPHome-Konfiguration
-│   ├── packages/                  Neigungsquelle: SCL3300 oder Wasserwaage aus HA
+│   ├── kompass.yaml               Gerätedatei für den ESPHome Builder (lädt die Pakete von GitHub)
+│   ├── packages/                  kompass-basis.yaml (Kompass-Logik), Neigung: SCL3300 oder Wasserwaage aus HA
 │   ├── components/scl3300/        ESPHome-Komponente für den Murata SCL3300
 │   └── secrets.example.yaml       Vorlage für secrets.yaml
 ├── hardware/
@@ -45,8 +45,10 @@ Der Kompass liefert die Ausrichtung des Fahrzeugs in Grad – magnetisch und geo
 ## Schnellstart
 
 1. Hardware nach [docs/hardware.md](docs/hardware.md) aufbauen.
-2. `esphome/secrets.example.yaml` als `secrets.yaml` in den ESPHome-Ordner kopieren und ausfüllen.
-3. `esphome/camper-kompass.yaml` kompilieren und flashen.
+2. Die Einträge aus `esphome/secrets.example.yaml` in die `secrets.yaml` des ESPHome Builders übernehmen.
+3. Inhalt von `esphome/kompass.yaml` als Gerät im ESPHome Builder anlegen, Einstellwerte unter `substitutions:` anpassen, flashen.
+   Die gesamte Logik (Pakete und die Komponente `scl3300`) lädt ESPHome beim Kompilieren direkt aus diesem Repository (`ref: main`, Aktualisierung täglich).
+   Änderungen im Repo landen also mit dem nächsten Kompilieren auf dem Gerät – für einen festen Stand `ref` auf einen Tag oder Commit setzen.
 4. Inbetriebnahme nach [docs/inbetriebnahme.md](docs/inbetriebnahme.md) – Reihenfolge einhalten.
 
 ## Integration HA Compass
