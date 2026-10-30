@@ -24,6 +24,11 @@ substitutions:
   gps_min_speed: "30.0"   # km/h
   gps_max_hdop: "2.0"
 
+# Neigungsquelle – genau eine Zeile aktiv lassen:
+packages:
+  neigung: !include packages/neigung-scl3300.yaml           # SCL3300 im Gehäuse
+  # neigung: !include packages/neigung-homeassistant.yaml   # vorhandene Wasserwaage in HA
+
 esphome:
   name: ${name}
   friendly_name: ${friendly_name}
@@ -201,16 +206,7 @@ sensor:
             send_every: 1
 
   # --- Werte aus Home Assistant -------------------------------------
-  # Neigung aus dem Wasserwaagen-Sensor (im Koffer verbaut)
-  - platform: homeassistant
-    id: tilt_front_up          # Pitch/Nicken: + = Front höher
-    entity_id: sensor.technik_wasserwaage_truck_pitch
-    internal: true
-  - platform: homeassistant
-    id: tilt_left_up           # Roll/Rollen: + = Fahrerseite (links) höher
-    entity_id: sensor.technik_wasserwaage_truck_roll
-    internal: true
-
+  # (Neigung tilt_front_up / tilt_left_up kommt aus dem Paket unter packages:)
   - platform: homeassistant
     id: gps_course
     entity_id: sensor.nx_01_position_gps_course

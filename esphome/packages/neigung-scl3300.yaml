@@ -1,0 +1,224 @@
+# =====================================================================
+#  Neigung vom Murata SCL3300 im Kompassgehäuse (SPI)
+#  Liefert tilt_front_up / tilt_left_up für die Neigungskompensation
+#  und die Nivellierwerte (Nicken, Rollen, Höhendifferenzen, Hinweis).
+# =====================================================================
+substitutions:
+  # Sensorachse (Aufdruck auf der SCL-Platine), die zur Fahrzeugfront / nach links / nach oben zeigt.
+  # Muss rechtshändig sein (vorne × links = oben) – ESPHome prüft das beim Kompilieren.
+  # Ermittlung: docs/inbetriebnahme.md, Abschnitt „Neigungssensor SCL3300“.
+  scl_forward: "+y"
+  scl_left: "+x"
+  scl_up: "-z"
+  scl_cs_pin: GPIO16
+  wheelbase_mm: "3500"       # Radstand
+  track_width_mm: "1886"     # Spurweite
+  level_tolerance: "0.5"     # ° – darunter gilt die Achse als waagerecht
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/trinler007/HA-Compass
+      ref: main
+      path: esphome/components
+    components: [scl3300]
+    refresh: 1d
+
+spi:
+  clk_pin: GPIO13
+  mosi_pin: GPIO14
+  miso_pin: GPIO15
+
+globals:
+  - id: level_pitch_offset
+    type: float
+    restore_value: yes
+    initial_value: "0.0"
+  - id: level_roll_offset
+    type: float
+    restore_value: yes
+    initial_value: "0.0"
+  - id: level_sum_p
+    type: float
+    initial_value: "0.0"
+  - id: level_sum_r
+    type: float
+    initial_value: "0.0"
+  - id: level_cnt
+    type: int
+    initial_value: "0"
+
+sensor:
+  - platform: scl3300
+    id: scl
+    cs_pin: ${scl_cs_pin}
+    mode: 1                  # ±1,2 g, voller Winkelbereich, 40 Hz Tiefpass
+    update_interval: 100ms
+    orientation:
+      forward: "${scl_forward}"
+      left: "${scl_left}"
+      up: "${scl_up}"
+    pitch:
+      id: scl_pitch_raw
+      internal: true
+    roll:
+      id: scl_roll_raw
+      internal: true
+    acceleration_x:
+      name: "Neigungssensor X roh"
+      entity_category: diagnostic
+      disabled_by_default: true
+      filters:
+        - throttle: 1s
+    acceleration_y:
+      name: "Neigungssensor Y roh"
+      entity_category: diagnostic
+      disabled_by_default: true
+      filters:
+        - throttle: 1s
+    acceleration_z:
+      name: "Neigungssensor Z roh"
+      entity_category: diagnostic
+      disabled_by_default: true
+      filters:
+        - throttle: 1s
+    temperature:
+      name: "Neigungssensor Temperatur"
+      entity_category: diagnostic
+      filters:
+        - throttle_average: 60s
+
+  # Für die Neigungskompensation des Kompasses (intern, nullpunktkorrigiert, 0,5 s geglättet)
+  - platform: template
+    id: tilt_front_up
+    internal: true
+    update_interval: 100ms
+    lambda: "return id(scl_pitch_raw).state - id(level_pitch_offset);"
+    filters:
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 1
+  - platform: template
+    id: tilt_left_up
+    internal: true
+    update_interval: 100ms
+    lambda: "return id(scl_roll_raw).state - id(level_roll_offset);"
+    filters:
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 1
+
+  # Nivellierwerte für Home Assistant
+  - platform: template
+    id: level_pitch
+    name: "Neigung längs"            # + = Front höher
+    icon: mdi:angle-acute
+    unit_of_measurement: "°"
+    accuracy_decimals: 2
+    state_class: measurement
+    update_interval: 1s
+    lambda: "return id(tilt_front_up).state;"
+    filters:
+      - exponential_moving_average:
+          alpha: 0.3
+          send_every: 1
+      - delta: 0.02
+  - platform: template
+    id: level_roll
+    name: "Neigung seitlich"         # + = Fahrerseite (links) höher
+    icon: mdi:angle-acute
+    unit_of_measurement: "°"
+    accuracy_decimals: 2
+    state_class: measurement
+    update_interval: 1s
+    lambda: "return id(tilt_left_up).state;"
+    filters:
+      - exponential_moving_average:
+          alpha: 0.3
+          send_every: 1
+      - delta: 0.02
+  - platform: template
+    id: level_height_long
+    name: "Höhendifferenz längs"     # + = Front höher als Heck
+    icon: mdi:arrow-expand-vertical
+    unit_of_measurement: "cm"
+    accuracy_decimals: 1
+    state_class: measurement
+    update_interval: 2s
+    lambda: "return tanf(id(level_pitch).state * M_PI / 180.0f) * ${wheelbase_mm} / 10.0f;"
+    filters:
+      - delta: 0.1
+  - platform: template
+    id: level_height_side
+    name: "Höhendifferenz seitlich"  # + = Fahrerseite höher
+    icon: mdi:arrow-expand-horizontal
+    unit_of_measurement: "cm"
+    accuracy_decimals: 1
+    state_class: measurement
+    update_interval: 2s
+    lambda: "return tanf(id(level_roll).state * M_PI / 180.0f) * ${track_width_mm} / 10.0f;"
+    filters:
+      - delta: 0.1
+
+text_sensor:
+  - platform: template
+    name: "Nivellier-Hinweis"
+    icon: mdi:car-info
+    update_interval: 2s
+    lambda: |-
+      float p = id(level_pitch).state, r = id(level_roll).state;
+      if (std::isnan(p) || std::isnan(r)) return {std::string("Keine Neigungsdaten")};
+      auto cm = [](float v) {
+        char b[16];
+        snprintf(b, sizeof(b), "%.1f", fabsf(v));
+        std::string s(b);
+        for (auto &c : s) if (c == '.') c = ',';
+        return s;
+      };
+      std::string out;
+      if (fabsf(p) > ${level_tolerance})
+        out += std::string(p > 0 ? "Heck " : "Front ") + cm(id(level_height_long).state) + " cm anheben";
+      if (fabsf(r) > ${level_tolerance}) {
+        if (!out.empty()) out += " · ";
+        out += std::string(r > 0 ? "Beifahrerseite " : "Fahrerseite ") + cm(id(level_height_side).state) + " cm anheben";
+      }
+      return {out.empty() ? std::string("Waagerecht") : out};
+
+button:
+  - platform: template
+    name: "Neigung Nullpunkt setzen"
+    icon: mdi:target
+    entity_category: config
+    on_press:
+      - script.execute: level_set_zero
+  - platform: template
+    name: "Neigung Nullpunkt zurücksetzen"
+    icon: mdi:restore
+    entity_category: config
+    on_press:
+      - lambda: |-
+          id(level_pitch_offset) = 0.0f;
+          id(level_roll_offset) = 0.0f;
+          global_preferences->sync();
+          ESP_LOGI("neigung", "Nullpunkt zurückgesetzt");
+
+script:
+  # Fahrzeug auf nachweislich ebenem Grund abstellen, dann auslösen (Messung über 5 s)
+  - id: level_set_zero
+    mode: single
+    then:
+      - lambda: |-
+          id(level_sum_p) = 0; id(level_sum_r) = 0; id(level_cnt) = 0;
+      - repeat:
+          count: 50
+          then:
+            - lambda: |-
+                float p = id(scl_pitch_raw).state, r = id(scl_roll_raw).state;
+                if (!std::isnan(p) && !std::isnan(r)) { id(level_sum_p) += p; id(level_sum_r) += r; id(level_cnt)++; }
+            - delay: 100ms
+      - lambda: |-
+          if (id(level_cnt) < 40) { ESP_LOGW("neigung", "Nullpunkt nicht gesetzt – zu wenige Messwerte"); return; }
+          id(level_pitch_offset) = id(level_sum_p) / id(level_cnt);
+          id(level_roll_offset) = id(level_sum_r) / id(level_cnt);
+          global_preferences->sync();
+          ESP_LOGI("neigung", "Nullpunkt gesetzt: Nicken %.3f°, Rollen %.3f°", id(level_pitch_offset), id(level_roll_offset));

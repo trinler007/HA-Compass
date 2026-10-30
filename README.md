@@ -29,6 +29,8 @@ Der Kompass liefert die Ausrichtung des Fahrzeugs in Grad – magnetisch und geo
 ├── dashboard/                      Fahrzeuggrafik, Konzept
 ├── esphome/
 │   ├── camper-kompass.yaml        ESPHome-Konfiguration
+│   ├── packages/                  Neigungsquelle: SCL3300 oder Wasserwaage aus HA
+│   ├── components/scl3300/        ESPHome-Komponente für den Murata SCL3300
 │   └── secrets.example.yaml       Vorlage für secrets.yaml
 ├── hardware/
 │   ├── schaltplan.svg             Verdrahtung
@@ -82,7 +84,8 @@ Gerechnet wird mit der HA-Heimatposition (im Fahrzeug per GPS nachgeführt).
 - [x] Werkbanktests (Einheit µT, Gesamtfeld ≈ 45–55 µT, Rauschen ±0,25 µT, Kalibrierlogik inkl. Rollback)
 - [x] Schaltung fertig, Gehäuse montiert (SCL3300-Kabel vorbereitet)
 - [ ] Achsen-Vorzeichen in Einbaulage geprüft
-- [ ] Neigungssensor SCL3300 aufstecken, ESPHome-Komponente
+- [x] ESPHome-Komponente SCL3300 + Paket (Nicken, Rollen, Höhendifferenzen, Hinweis, Nullpunkt)
+- [ ] SCL3300 aufstecken, Achsen bestimmen, Nullpunkt setzen
 - [ ] Z-Offset, Kreisfahrt-Kalibrierung, erste Fahrt mit GPS-Abgleich
 - [x] Integration HA Compass (Sonne, Mond, Schattenseite, Ansicht)
 - [x] openHASP-Seite

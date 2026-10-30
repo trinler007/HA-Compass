@@ -1,0 +1,17 @@
+# =====================================================================
+#  Neigung aus einer vorhandenen Wasserwaage in Home Assistant
+#  (Alternative zum SCL3300 – liefert tilt_front_up / tilt_left_up)
+# =====================================================================
+substitutions:
+  ha_pitch_entity: sensor.technik_wasserwaage_truck_pitch   # + = Front höher
+  ha_roll_entity: sensor.technik_wasserwaage_truck_roll     # + = Fahrerseite (links) höher
+
+sensor:
+  - platform: homeassistant
+    id: tilt_front_up
+    entity_id: ${ha_pitch_entity}
+    internal: true
+  - platform: homeassistant
+    id: tilt_left_up
+    entity_id: ${ha_roll_entity}
+    internal: true

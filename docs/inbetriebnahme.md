@@ -63,6 +63,29 @@ Bei Geradeausfahrt ab 30 km/h, HDOP < 2 und ruhigem Kurs sammelt der ESP Messpun
 Kontrolle: Nach der Fahrt auf gerader Straße anhalten und **Ausrichtung geografisch** mit dem letzten GPS-Kurs vergleichen.
 Größere Abweichungen im Stand deuten auf Störungen, die nur während der Fahrt auftreten (z. B. B2B-Lader).
 
+## Neigungssensor SCL3300
+
+Die Neigung kommt per Paket in `esphome/camper-kompass.yaml`:
+`packages/neigung-scl3300.yaml` (SCL3300 im Gehäuse) oder `packages/neigung-homeassistant.yaml` (vorhandene Wasserwaage in HA).
+Die Komponente `scl3300` wird beim Kompilieren automatisch aus diesem Repository geladen (`external_components`).
+
+1. **Aufstecken und flashen.** Im Log muss beim Start stehen: `SCL3300 erkannt (WHOAMI 0xC1), Modus 1`.
+   `Kennung 0x.. statt 0xC1` oder `Keine gültige Antwort (CRC)` → Verdrahtung prüfen (Farbtabelle in `hardware.md`).
+2. **Achsen bestimmen.** Diagnose-Entitäten *Neigungssensor X/Y/Z roh* aktivieren.
+   - **oben:** Die Achse, die in Einbaulage ≈ ±1 g zeigt. +1 g → `scl_up: "+…"`, −1 g → `"-…"`.
+   - **vorne:** Gehäuse vor dem Festschrauben an der FRONT-Seite leicht anheben. Die Achse, deren Wert dabei steigt → `"+…"`, fällt → `"-…"`.
+   - **links:** ergibt sich aus der Rechte-Hand-Regel (oben × vorne). Meldet ESPHome beim Kompilieren „gespiegelt“, das Vorzeichen von `scl_left` umkehren.
+   - Eintragen unter `substitutions:` in der Hauptdatei (überschreibt die Standardwerte des Pakets).
+   - Kontrolle: Im Log warnt `Achse 'up' misst … g`, wenn „oben“ falsch ist.
+3. **Plausibilität:** *Neigung längs* wird positiv, wenn die Front höher steht; *Neigung seitlich* positiv, wenn die Fahrerseite höher steht.
+4. **Nullpunkt:** Fahrzeug auf nachweislich ebenem Grund (z. B. mit der bisherigen Wasserwaage bei 0,0°/0,0°) abstellen,
+   Button **Neigung Nullpunkt setzen** (Messung über 5 s). Der Nullpunkt bleibt nach Neustarts erhalten.
+5. Danach Z-Offset und Kreisfahrt-Kalibrierung des Kompasses (die SCL-Platine liegt nahe am Magnetometer).
+
+Neue Entitäten: *Neigung längs*, *Neigung seitlich*, *Höhendifferenz längs/seitlich* (cm, aus Radstand/Spurweite),
+*Nivellier-Hinweis*, *Neigungssensor Temperatur*. In `ha-level-card` und auf der openHASP-Seite 2 die bisherigen
+Wasserwaagen-Entitäten durch diese ersetzen.
+
 ## Fehlersuche
 
 | Symptom | Ursache / Abhilfe |
@@ -73,6 +96,8 @@ Größere Abweichungen im Stand deuten auf Störungen, die nur während der Fahr
 | Ausrichtung springt bei Verbrauchern | Störquelle in Sensornähe – Horizontalfeld prüfen |
 | GPS-Messpunkte steigen nicht | NMEA-Status, Geschwindigkeit, HDOP prüfen; Schalter „GPS-Abgleich“ an? |
 | Kalibrierung verworfen | Kreis unvollständig oder Fahrt zu schnell – wiederholen |
+| SCL3300: falsche Kennung / CRC-Fehler | Verdrahtung, 3V3 an AVDD **und** DVIO, Masse an AVSS **und** DVSS |
+| Neigung längs/seitlich mit falschem Vorzeichen | `scl_forward` bzw. `scl_left` umkehren (Rechte-Hand-Regel beachten) |
 
 ## Bedienelemente in HA
 
