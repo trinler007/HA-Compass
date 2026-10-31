@@ -128,6 +128,11 @@ globals:
     type: int
     initial_value: "0"
 
+  # aufeinanderfolgende GPS-Punkte außerhalb des 20°-Fensters
+  - id: outlier_cnt
+    type: int
+    initial_value: "0"
+
 # ---------------------------------------------------------------------
 #  Sensoren
 # ---------------------------------------------------------------------
@@ -312,6 +317,7 @@ button:
           id(off_cos) = cosf(${offset_default} * M_PI / 180.0f);
           id(align_n) = 0;
           id(stable_cnt) = 0;
+          id(outlier_cnt) = 0;
           global_preferences->sync();
           ESP_LOGI("kompass", "GPS-Abgleich auf Startwert %.1f° zurückgesetzt", ${offset_default});
 
@@ -348,6 +354,12 @@ script:
           if (rx > 10.0f && ry > 10.0f && ratio > 0.7f && ratio < 1.4f) {
             ESP_LOGI("kompass", "Kalibrierung OK: Offset X=%.1f Y=%.1f µT, Radius X=%.1f Y=%.1f µT",
                      (id(cal_x_max) + id(cal_x_min)) / 2.0f, (id(cal_y_max) + id(cal_y_min)) / 2.0f, rx, ry);
+            // Die bisherige GPS-Korrektur passt nicht mehr zur neuen Kalibrierung -> neu lernen
+            id(off_sin) = sinf(${offset_default} * M_PI / 180.0f);
+            id(off_cos) = cosf(${offset_default} * M_PI / 180.0f);
+            id(align_n) = 0;
+            id(outlier_cnt) = 0;
+            ESP_LOGI("kompass", "GPS-Abgleich zurückgesetzt – lernt bei der nächsten Fahrt neu");
           } else {
             ESP_LOGW("kompass", "Kalibrierung verworfen (Radius X=%.1f Y=%.1f µT) – Kreis unvollständig? Alte Werte bleiben aktiv.", rx, ry);
             id(cal_x_min) = id(bak_x_min); id(cal_x_max) = id(bak_x_max);
@@ -479,7 +491,17 @@ interval:
 
           float diff = wrap(crs - hdg);
           float corr = atan2f(id(off_sin), id(off_cos)) * R2D;
-          if (id(align_n) > 30 && std::fabs(wrap(diff - corr)) > 20.0f) return;  // Ausreißer
+          if (id(align_n) > 30 && std::fabs(wrap(diff - corr)) > 20.0f) {
+            // Ausreißer. Bleibt die Abweichung über 2 min ruhiger Geradeausfahrt bestehen,
+            // passt die gelernte Korrektur nicht mehr (z. B. Umbau) -> neu lernen.
+            if (++id(outlier_cnt) >= 120) {
+              ESP_LOGW("kompass", "GPS-Abgleich: Korrektur %.1f° passt dauerhaft nicht (aktuell %.1f°) – lerne neu", corr, diff);
+              id(align_n) = 0;
+              id(outlier_cnt) = 0;
+            }
+            return;
+          }
+          id(outlier_cnt) = 0;
 
           // Anfangs schnell, später träge (min. 1 %) mitteln
           float k = 1.0f / (id(align_n) + 1);
