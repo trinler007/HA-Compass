@@ -1,6 +1,6 @@
 # =====================================================================
 #  Neigung vom Murata SCL3300 im Kompassgehäuse (SPI)
-#  Liefert tilt_front_up / tilt_left_up für die Neigungskompensation
+#  Liefert tilt_front_up / tilt_left_up (Lage des Gehäuses) für die Neigungskompensation
 #  und die Nivellierwerte (Nicken, Rollen, Höhendifferenzen, Hinweis).
 # =====================================================================
 substitutions:
@@ -88,12 +88,13 @@ sensor:
       filters:
         - throttle_average: 60s
 
-  # Für die Neigungskompensation des Kompasses (intern, nullpunktkorrigiert, 0,5 s geglättet)
+  # Für die Neigungskompensation des Kompasses: Lage des Gehäuses gegen das Lot
+  # (ohne Nullpunkt – Magnetometer und SCL3300 liegen parallel im selben Gehäuse; 0,5 s geglättet)
   - platform: template
     id: tilt_front_up
     internal: true
     update_interval: 100ms
-    lambda: "return id(scl_pitch_raw).state - id(level_pitch_offset);"
+    lambda: "return id(scl_pitch_raw).state;"
     filters:
       - sliding_window_moving_average:
           window_size: 5
@@ -102,13 +103,13 @@ sensor:
     id: tilt_left_up
     internal: true
     update_interval: 100ms
-    lambda: "return id(scl_roll_raw).state - id(level_roll_offset);"
+    lambda: "return id(scl_roll_raw).state;"
     filters:
       - sliding_window_moving_average:
           window_size: 5
           send_every: 1
 
-  # Nivellierwerte für Home Assistant
+  # Nivellierwerte für Home Assistant (Lage des Fahrzeugs = Gehäuse − Nullpunkt)
   - platform: template
     id: level_pitch
     name: "Neigung längs"            # + = Front höher
@@ -117,7 +118,7 @@ sensor:
     accuracy_decimals: 2
     state_class: measurement
     update_interval: 1s
-    lambda: "return id(tilt_front_up).state;"
+    lambda: "return id(tilt_front_up).state - id(level_pitch_offset);"
     filters:
       - exponential_moving_average:
           alpha: 0.3
@@ -131,7 +132,7 @@ sensor:
     accuracy_decimals: 2
     state_class: measurement
     update_interval: 1s
-    lambda: "return id(tilt_left_up).state;"
+    lambda: "return id(tilt_left_up).state - id(level_roll_offset);"
     filters:
       - exponential_moving_average:
           alpha: 0.3
