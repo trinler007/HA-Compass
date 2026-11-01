@@ -14,6 +14,8 @@ substitutions:
   wheelbase_mm: "3500"       # Radstand
   track_width_mm: "1886"     # Spurweite
   level_tolerance: "0.5"     # ° – darunter gilt die Achse als waagerecht
+  # Wie oft die Komponente scl3300 neu von GitHub geholt wird (z. B. 0s nach einem Update)
+  components_refresh: 1d
 
 external_components:
   - source:
@@ -22,7 +24,7 @@ external_components:
       ref: main
       path: esphome/components
     components: [scl3300]
-    refresh: 1d
+    refresh: ${components_refresh}
 
 spi:
   clk_pin: GPIO13

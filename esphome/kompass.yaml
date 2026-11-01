@@ -20,6 +20,7 @@ substitutions:
   track_width_mm: "1886"
 
   # Weitere Werte mit Standard (bei Bedarf hier überschreiben):
+  # components_refresh: 0s   # Komponente scl3300 sofort neu von GitHub holen
   # vertical_field_ut: "43.5"
   # gps_course_entity: sensor.nx_01_position_gps_course
   # gps_speed_entity: sensor.nx_01_position_gps_speed
