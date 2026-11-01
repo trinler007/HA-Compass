@@ -55,15 +55,10 @@ def _vec(axis):
 
 
 def _validate_orientation(cfg):
-    f, l, u = (_vec(cfg[k]) for k in (CONF_FORWARD, CONF_LEFT, CONF_UP))
+    # Keine Prüfung auf Rechtshändigkeit: Die Vorzeichen werden empirisch bestimmt
+    # (Achse oben misst +1 g, Anheben vorne/links erhöht den Wert) – das ist maßgeblich.
     if len({AXES[cfg[k]][0] for k in (CONF_FORWARD, CONF_LEFT, CONF_UP)}) != 3:
         raise cv.Invalid("forward, left und up müssen drei verschiedene Sensorachsen sein")
-    cross = [f[1] * l[2] - f[2] * l[1], f[2] * l[0] - f[0] * l[2], f[0] * l[1] - f[1] * l[0]]
-    if cross != u:
-        raise cv.Invalid(
-            "Achsenzuordnung ist gespiegelt: 'up' muss vorne × links ergeben – "
-            "Vorzeichen von 'up' (oder einer anderen Achse) umkehren"
-        )
     return cfg
 
 

@@ -5,8 +5,8 @@
 # =====================================================================
 substitutions:
   # Sensorachse (Aufdruck auf der SCL-Platine), die zur Fahrzeugfront / nach links / nach oben zeigt.
-  # Muss rechtshändig sein (vorne × links = oben) – ESPHome prüft das beim Kompilieren.
-  # Ermittlung: docs/inbetriebnahme.md, Abschnitt „Neigungssensor SCL3300“.
+  # Ermittlung empirisch: oben = Achse mit ≈ +1 g; vorne/links = Achse, deren Wert beim
+  # Anheben der Front bzw. der Fahrerseite steigt (docs/inbetriebnahme.md).
   scl_forward: "+y"
   scl_left: "+x"
   scl_up: "-z"
@@ -185,6 +185,69 @@ text_sensor:
       }
       return {out.empty() ? std::string("Waagerecht") : out};
 
+number:
+  # Nullpunkt = Lage des Gehäuses bei waagerechtem Fahrzeug. Direkt editierbar,
+  # wird von „Neigung Nullpunkt setzen“ überschrieben.
+  - platform: template
+    name: "Neigung Nullpunkt längs"
+    icon: mdi:axis-y-rotate-clockwise
+    entity_category: config
+    unit_of_measurement: "°"
+    mode: box
+    min_value: -15
+    max_value: 15
+    step: 0.01
+    update_interval: 2s
+    lambda: "return id(level_pitch_offset);"
+    set_action:
+      - lambda: |-
+          id(level_pitch_offset) = x;
+          global_preferences->sync();
+  - platform: template
+    name: "Neigung Nullpunkt seitlich"
+    icon: mdi:axis-x-rotate-clockwise
+    entity_category: config
+    unit_of_measurement: "°"
+    mode: box
+    min_value: -15
+    max_value: 15
+    step: 0.01
+    update_interval: 2s
+    lambda: "return id(level_roll_offset);"
+    set_action:
+      - lambda: |-
+          id(level_roll_offset) = x;
+          global_preferences->sync();
+
+  # Referenz: tatsächliche Fahrzeugneigung während „Neigung Nullpunkt setzen“
+  # (z. B. Wasserwaage auf dem Boden). 0/0 = Fahrzeug steht eben.
+  - platform: template
+    id: level_ref_pitch
+    name: "Neigung Referenz längs"   # + = Front höher
+    icon: mdi:ruler-square-compass
+    entity_category: config
+    unit_of_measurement: "°"
+    mode: box
+    min_value: -15
+    max_value: 15
+    step: 0.01
+    optimistic: true
+    restore_value: true
+    initial_value: 0
+  - platform: template
+    id: level_ref_roll
+    name: "Neigung Referenz seitlich"  # + = Fahrerseite höher
+    icon: mdi:ruler-square-compass
+    entity_category: config
+    unit_of_measurement: "°"
+    mode: box
+    min_value: -15
+    max_value: 15
+    step: 0.01
+    optimistic: true
+    restore_value: true
+    initial_value: 0
+
 button:
   - platform: template
     name: "Neigung Nullpunkt setzen"
@@ -204,7 +267,8 @@ button:
           ESP_LOGI("neigung", "Nullpunkt zurückgesetzt");
 
 script:
-  # Fahrzeug auf nachweislich ebenem Grund abstellen, dann auslösen (Messung über 5 s)
+  # Fahrzeug eben abstellen ODER die tatsächliche Neigung als Referenz eintragen,
+  # dann auslösen (Messung über 5 s): Nullpunkt = Gehäuselage − Referenz
   - id: level_set_zero
     mode: single
     then:
@@ -219,7 +283,11 @@ script:
             - delay: 100ms
       - lambda: |-
           if (id(level_cnt) < 40) { ESP_LOGW("neigung", "Nullpunkt nicht gesetzt – zu wenige Messwerte"); return; }
-          id(level_pitch_offset) = id(level_sum_p) / id(level_cnt);
-          id(level_roll_offset) = id(level_sum_r) / id(level_cnt);
+          float rp = id(level_ref_pitch).state, rr = id(level_ref_roll).state;
+          if (std::isnan(rp)) rp = 0.0f;
+          if (std::isnan(rr)) rr = 0.0f;
+          id(level_pitch_offset) = id(level_sum_p) / id(level_cnt) - rp;
+          id(level_roll_offset) = id(level_sum_r) / id(level_cnt) - rr;
           global_preferences->sync();
-          ESP_LOGI("neigung", "Nullpunkt gesetzt: Nicken %.3f°, Rollen %.3f°", id(level_pitch_offset), id(level_roll_offset));
+          ESP_LOGI("neigung", "Nullpunkt gesetzt: Nicken %.3f°, Rollen %.3f° (Referenz %.2f° / %.2f°)",
+                   id(level_pitch_offset), id(level_roll_offset), rp, rr);
