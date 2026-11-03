@@ -3,7 +3,7 @@
  * Teil von HA-Compass (Apache-2.0). Sonnen-/Mondberechnung: SunCalc-Port
  * (BSD-2-Clause, © 2014 Vladimir Agafonkin) – siehe NOTICE.
  */
-const CARD_VERSION = "0.4.3";
+const CARD_VERSION = "0.4.4";
 
 /* ------------------------------------------------------------ Astronomie (SunCalc) */
 const RAD = Math.PI / 180, DAY_MS = 86400000, J1970 = 2440588, J2000 = 2451545, E = RAD * 23.4397;
@@ -351,7 +351,7 @@ class HaCompassCard extends HTMLElement {
         if (this._config.show_moon_path) moon.push([sx(ts), moonElevation(ts, lat, lon)]);
       }
       const maxEl = Math.max(20, ...sun.map((p) => p[1]), ...moon.map((p) => p[1])) + 5;
-      const sy = (el) => el >= 0 ? base - (el / maxEl) * (base - top) : base + (Math.min(-el, 18) / 18) * (H - 2 - base);
+      const sy = (el) => el >= 0 ? base - (el / maxEl) * (base - top) : base + (Math.min(-el, 18) / 18) * (H - 9 - base);
       const poly = (p) => "M" + p.map(([x, e]) => `${x.toFixed(1)} ${sy(e).toFixed(1)}`).join("L");
       const marks = [[E_.dawn, t.dawn], [E_.rise, "↑"], [E_.noon, t.noon], [E_.set, "↓"], [E_.dusk, t.dusk]]
         .map(([id, l], i) => {
@@ -374,7 +374,7 @@ class HaCompassCard extends HTMLElement {
   ${ticks}
   <line x1="${nx.toFixed(1)}" y1="0" x2="${nx.toFixed(1)}" y2="${base}" class="now"/>
 </svg>
-<div class="nowdot${nowEl > 0 ? "" : " below"}" style="left:${pct(now)}%;top:${((sy(nowEl) / H) * 100).toFixed(1)}%"></div>
+<div class="nowdot${nowEl > 0 ? "" : " below"}" style="left:${pct(now)}%;top:${((sy(nowEl) / H) * 90).toFixed(1)}px"></div>
 <div class="htexts">${texts}</div>
 </div>`;
     }
