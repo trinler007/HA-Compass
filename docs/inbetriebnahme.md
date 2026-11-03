@@ -98,7 +98,7 @@ Wasserwaagen-Entitäten durch diese ersetzen.
 
 | Symptom | Ursache / Abhilfe |
 | --- | --- |
-| Ausrichtung um ~180° falsch | X-Pfeil zeigt nach hinten – Sensor um 180° drehen |
+| Ausrichtung um ~180° falsch | X-Pfeil zeigt nach hinten – Sensor um 180° drehen oder `x_sign` und `y_sign` auf `"-1.0"` |
 | Ost und West vertauscht | `y_sign` falsch |
 | Fehler wächst mit Schräglage | `z_sign`, Z-Offset oder Gehäuse nicht parallel zur Wasserwaage |
 | Ausrichtung springt bei Verbrauchern | Störquelle in Sensornähe – Horizontalfeld prüfen |

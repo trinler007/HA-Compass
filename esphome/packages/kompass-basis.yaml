@@ -8,6 +8,8 @@
 substitutions:
   # Achsen-Vorzeichen des Magnetometers in Einbaulage (docs/inbetriebnahme.md)
   # Internes Koordinatensystem: X = vorne, Y = rechts, Z = unten
+  # Gehäuse verkehrt herum (X-Pfeil zum Heck): x_sign und y_sign auf "-1.0"
+  x_sign: "1.0"
   y_sign: "1.0"
   z_sign: "1.0"
   i2c_sda: GPIO11
@@ -155,8 +157,9 @@ sensor:
         then:
           - lambda: |-
               if (id(is_calibrating)) {
-                if (x < id(cal_x_min)) id(cal_x_min) = x;
-                if (x > id(cal_x_max)) id(cal_x_max) = x;
+                float v = ${x_sign} * x;
+                if (v < id(cal_x_min)) id(cal_x_min) = v;
+                if (v > id(cal_x_max)) id(cal_x_max) = v;
               }
 
     field_strength_y:
@@ -331,7 +334,7 @@ script:
       - lambda: |-
           id(bak_x_min) = id(cal_x_min); id(bak_x_max) = id(cal_x_max);
           id(bak_y_min) = id(cal_y_min); id(bak_y_max) = id(cal_y_max);
-          float bx = id(raw_x).state;
+          float bx = ${x_sign} * id(raw_x).state;
           float by = ${y_sign} * id(raw_y).state;
           if (std::isnan(bx) || std::isnan(by)) {
             ESP_LOGW("kompass", "Kalibrierung nicht gestartet: keine Sensordaten");
@@ -407,7 +410,7 @@ interval:
           if (std::isnan(mx) || std::isnan(my) || std::isnan(mz)) return;
 
           // Fahrzeugkoordinaten: X vorne, Y rechts, Z unten
-          float bx = mx;
+          float bx = ${x_sign} * mx;
           float by = ${y_sign} * my;
           float bz = ${z_sign} * mz;
 
