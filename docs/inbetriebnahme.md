@@ -52,7 +52,7 @@ Button **Kompass Z-Offset ermitteln** (Messung 10 s, Ergebnis im Log).
 ## 5. Kreisfahrt-Kalibrierung
 
 Auf einer möglichst ebenen, freien Fläche:
-1. **Kompass Kalibrierung starten**
+1. Im Stand **Kompass Kalibrierung starten** und 3 s stehen bleiben (Gehäuselage wird gemessen, Log: *Kalibrierung gestartet*)
 2. Langsam **etwas mehr als einen vollen Kreis** fahren (Wendekreis 15,6 m → ca. 50 m Strecke)
 3. **Kompass Kalibrierung beenden** (Sicherheits-Timeout: 3 min)
 

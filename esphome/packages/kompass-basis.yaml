@@ -81,7 +81,7 @@ globals:
     type: bool
     initial_value: "false"
 
-  # Während der Kreisfahrt: Z-Spanne und mittlere Gehäuselage
+  # Kreisfahrt: Z-Spanne und Gehäuselage im Stand vor dem Losfahren
   - id: cal_z_min
     type: float
     initial_value: "0.0"
@@ -146,6 +146,14 @@ globals:
   - id: stable_cnt
     type: int
     initial_value: "0"
+
+  # Neigung für die Kompensation (während der Fahrt träge gefiltert)
+  - id: tilt_c_p
+    type: float
+    initial_value: "NAN"
+  - id: tilt_c_r
+    type: float
+    initial_value: "NAN"
 
   # aufeinanderfolgende GPS-Punkte außerhalb des 20°-Fensters
   - id: outlier_cnt
@@ -213,10 +221,6 @@ sensor:
                 float v = ${z_sign} * x;
                 if (v < id(cal_z_min)) id(cal_z_min) = v;
                 if (v > id(cal_z_max)) id(cal_z_max) = v;
-                float p = id(tilt_front_up).state, q = id(tilt_left_up).state;
-                if (!std::isnan(p) && !std::isnan(q) && std::fabs(p) < 30.0f && std::fabs(q) < 30.0f) {
-                  id(cal_p_sum) += p; id(cal_r_sum) += q; id(cal_t_n)++;
-                }
               }
 
   # --- Werte aus Home Assistant -------------------------------------
@@ -360,6 +364,20 @@ script:
   - id: kalibrierung
     mode: single
     then:
+      # Gehäuselage im Stand messen – während der Fahrt verfälscht die Fliehkraft
+      # das Lot (10 km/h im Wendekreis ≈ 0,1 g ≈ 6° Schein-Rollen)
+      - lambda: |-
+          id(cal_p_sum) = 0.0f; id(cal_r_sum) = 0.0f; id(cal_t_n) = 0;
+          ESP_LOGI("kompass", "Kalibrierung: Lage wird gemessen – 3 s stehen bleiben");
+      - repeat:
+          count: 15
+          then:
+            - lambda: |-
+                float p = id(tilt_front_up).state, q = id(tilt_left_up).state;
+                if (!std::isnan(p) && !std::isnan(q) && std::fabs(p) < 30.0f && std::fabs(q) < 30.0f) {
+                  id(cal_p_sum) += p; id(cal_r_sum) += q; id(cal_t_n)++;
+                }
+            - delay: 200ms
       - lambda: |-
           id(bak_x_min) = id(cal_x_min); id(bak_x_max) = id(cal_x_max);
           id(bak_y_min) = id(cal_y_min); id(bak_y_max) = id(cal_y_max);
@@ -374,7 +392,6 @@ script:
           id(cal_y_min) = id(cal_y_max) = by;
           float bz = ${z_sign} * id(raw_z).state;
           id(cal_z_min) = id(cal_z_max) = std::isnan(bz) ? 0.0f : bz;
-          id(cal_p_sum) = 0.0f; id(cal_r_sum) = 0.0f; id(cal_t_n) = 0;
           id(is_calibrating) = true;
           ESP_LOGI("kompass", "Kalibrierung gestartet – jetzt langsam mindestens einen vollen Kreis fahren");
       - wait_until:
@@ -392,7 +409,7 @@ script:
             // damit nur der Hard-Iron-Anteil bleibt – und Z-Offset gleich mitbestimmen.
             const float D2R = M_PI / 180.0f;
             float th = 0.0f, ph = 0.0f;
-            if (id(cal_t_n) > 10) {
+            if (id(cal_t_n) >= 10) {
               th = id(cal_p_sum) / id(cal_t_n) * D2R;
               ph = id(cal_r_sum) / id(cal_t_n) * D2R;
             }
@@ -471,12 +488,23 @@ interval:
           float cz = bz - id(z_offset);
 
           // Neigungskompensation: th = Nicken (Front hoch +), ph = Rollen (rechts tief +)
+          // Im Stand direkt; in Fahrt (> 5 km/h) träge (Zeitkonstante ≈ 10 s), damit Bremsen,
+          // Anfahren und Kurven (Scheinlot) nicht durchschlagen, Steigungen aber nachgeführt werden.
           float th = 0.0f, ph = 0.0f;
           if (id(tilt_comp).state) {
             float p = id(tilt_front_up).state, q = id(tilt_left_up).state;
             if (!std::isnan(p) && !std::isnan(q) && std::fabs(p) < 30.0f && std::fabs(q) < 30.0f) {
-              th = p * D2R;
-              ph = q * D2R;
+              float spd = id(gps_speed).state;
+              bool moving = !std::isnan(spd) && spd > 5.0f;
+              if (std::isnan(id(tilt_c_p)) || !moving) {
+                id(tilt_c_p) = p; id(tilt_c_r) = q;
+              } else {
+                const float k = 0.05f;   // Takt 0,5 s -> ≈ 10 s
+                id(tilt_c_p) += k * (p - id(tilt_c_p));
+                id(tilt_c_r) += k * (q - id(tilt_c_r));
+              }
+              th = id(tilt_c_p) * D2R;
+              ph = id(tilt_c_r) * D2R;
             }
           }
           float hx = cx * cosf(th) + cy * sinf(th) * sinf(ph) + cz * sinf(th) * cosf(ph);
