@@ -81,6 +81,23 @@ globals:
     type: bool
     initial_value: "false"
 
+  # Während der Kreisfahrt: Z-Spanne und mittlere Gehäuselage
+  - id: cal_z_min
+    type: float
+    initial_value: "0.0"
+  - id: cal_z_max
+    type: float
+    initial_value: "0.0"
+  - id: cal_p_sum
+    type: float
+    initial_value: "0.0"
+  - id: cal_r_sum
+    type: float
+    initial_value: "0.0"
+  - id: cal_t_n
+    type: int
+    initial_value: "0"
+
   # Z-Offset (Hard-Iron der Z-Achse)
   - id: z_offset
     type: float
@@ -189,6 +206,18 @@ sensor:
         - median:
             window_size: 5
             send_every: 1
+      on_value:
+        then:
+          - lambda: |-
+              if (id(is_calibrating)) {
+                float v = ${z_sign} * x;
+                if (v < id(cal_z_min)) id(cal_z_min) = v;
+                if (v > id(cal_z_max)) id(cal_z_max) = v;
+                float p = id(tilt_front_up).state, q = id(tilt_left_up).state;
+                if (!std::isnan(p) && !std::isnan(q) && std::fabs(p) < 30.0f && std::fabs(q) < 30.0f) {
+                  id(cal_p_sum) += p; id(cal_r_sum) += q; id(cal_t_n)++;
+                }
+              }
 
   # --- Werte aus Home Assistant -------------------------------------
   # (Neigung tilt_front_up / tilt_left_up kommt aus dem Neigungs-Paket)
@@ -343,6 +372,9 @@ script:
           }
           id(cal_x_min) = id(cal_x_max) = bx;
           id(cal_y_min) = id(cal_y_max) = by;
+          float bz = ${z_sign} * id(raw_z).state;
+          id(cal_z_min) = id(cal_z_max) = std::isnan(bz) ? 0.0f : bz;
+          id(cal_p_sum) = 0.0f; id(cal_r_sum) = 0.0f; id(cal_t_n) = 0;
           id(is_calibrating) = true;
           ESP_LOGI("kompass", "Kalibrierung gestartet – jetzt langsam mindestens einen vollen Kreis fahren");
       - wait_until:
@@ -355,8 +387,23 @@ script:
           float ry = (id(cal_y_max) - id(cal_y_min)) / 2.0f;
           float ratio = (ry > 0.0f) ? rx / ry : 0.0f;
           if (rx > 10.0f && ry > 10.0f && ratio > 0.7f && ratio < 1.4f) {
-            ESP_LOGI("kompass", "Kalibrierung OK: Offset X=%.1f Y=%.1f µT, Radius X=%.1f Y=%.1f µT",
-                     (id(cal_x_max) + id(cal_x_min)) / 2.0f, (id(cal_y_max) + id(cal_y_min)) / 2.0f, rx, ry);
+            // Ist das Gehäuse geneigt, steckt in den Kreismitten zusätzlich der Anteil der
+            // Vertikalkomponente des Erdfelds (Bv · Lotrichtung im Sensorsystem). Herausrechnen,
+            // damit nur der Hard-Iron-Anteil bleibt – und Z-Offset gleich mitbestimmen.
+            const float D2R = M_PI / 180.0f;
+            float th = 0.0f, ph = 0.0f;
+            if (id(cal_t_n) > 10) {
+              th = id(cal_p_sum) / id(cal_t_n) * D2R;
+              ph = id(cal_r_sum) / id(cal_t_n) * D2R;
+            }
+            const float bv = ${vertical_field_ut};
+            float dx = -sinf(th), dy = cosf(th) * sinf(ph), dz = cosf(th) * cosf(ph);
+            id(cal_x_min) -= bv * dx; id(cal_x_max) -= bv * dx;
+            id(cal_y_min) -= bv * dy; id(cal_y_max) -= bv * dy;
+            id(z_offset) = (id(cal_z_min) + id(cal_z_max)) / 2.0f - bv * dz;
+            ESP_LOGI("kompass", "Kalibrierung OK: Offset X=%.1f Y=%.1f Z=%.1f µT, Radius X=%.1f Y=%.1f µT, Gehäuselage %.1f° / %.1f° (%d Werte)",
+                     (id(cal_x_max) + id(cal_x_min)) / 2.0f, (id(cal_y_max) + id(cal_y_min)) / 2.0f, id(z_offset),
+                     rx, ry, th / D2R, ph / D2R, id(cal_t_n));
             // Die bisherige GPS-Korrektur passt nicht mehr zur neuen Kalibrierung -> neu lernen
             id(off_sin) = sinf(${offset_default} * M_PI / 180.0f);
             id(off_cos) = cosf(${offset_default} * M_PI / 180.0f);

@@ -41,9 +41,13 @@ Ziel: Ausrichtung schwankt um weniger als ±1°.
 
 ## 4. Z-Offset
 
-Zu Hause auf ebenem Grund (Wasserwaage: Nicken und Rollen jeweils < 1,5°): Button **Kompass Z-Offset ermitteln**.
-Die Messung dauert 10 s; das Ergebnis steht im Log.
-`vertical_field_ut` (Standard 43,5 µT) ist die Vertikalkomponente des Erdfelds am Messort – genauer Wert über den NOAA Magnetic Field Calculator.
+Mit dem Neigungssensor SCL3300 **entfällt dieser Schritt**: Die Kreisfahrt bestimmt den Z-Offset mit
+und rechnet die Gehäuseneigung aus den X/Y-Offsets heraus (sonst bis zu ~6° richtungsabhängiger Fehler
+bei 2–3° Schräglage). `vertical_field_ut` (Standard 43,5 µT) ist die Vertikalkomponente des Erdfelds –
+genauer Wert über den NOAA Magnetic Field Calculator.
+
+Nur mit der Wasserwaage aus HA: zu Hause auf ebenem Grund (Nicken und Rollen jeweils < 1,5°)
+Button **Kompass Z-Offset ermitteln** (Messung 10 s, Ergebnis im Log).
 
 ## 5. Kreisfahrt-Kalibrierung
 
@@ -53,6 +57,9 @@ Auf einer möglichst ebenen, freien Fläche:
 3. **Kompass Kalibrierung beenden** (Sicherheits-Timeout: 3 min)
 
 Der ESP prüft die Messung (beide Radien > 10 µT, Verhältnis 0,7–1,4) und verwirft unvollständige Kreise automatisch.
+Im Log: `Kalibrierung OK: Offset X/Y/Z …, Radius X/Y …, Gehäuselage …`. Beide Radien sollten nahe am
+Horizontalfeld liegen (Allgäu ≈ 20–21 µT) und sich um weniger als ~10 % unterscheiden.
+Danach setzt sich der GPS-Abgleich automatisch zurück.
 
 ## 6. Erste Fahrt – GPS-Abgleich
 
