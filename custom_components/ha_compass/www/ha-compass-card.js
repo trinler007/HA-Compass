@@ -3,7 +3,7 @@
  * Teil von HA-Compass (Apache-2.0). Sonnen-/Mondberechnung: SunCalc-Port
  * (BSD-2-Clause, © 2014 Vladimir Agafonkin) – siehe NOTICE.
  */
-const CARD_VERSION = "0.4.4";
+const CARD_VERSION = "0.4.5";
 
 /* ------------------------------------------------------------ Astronomie (SunCalc) */
 const RAD = Math.PI / 180, DAY_MS = 86400000, J1970 = 2440588, J2000 = 2451545, E = RAD * 23.4397;
@@ -361,6 +361,10 @@ class HaCompassCard extends HTMLElement {
       const ticks = marks.map((m) => `<line x1="${sx(m.ts).toFixed(1)}" y1="${base - 4}" x2="${sx(m.ts).toFixed(1)}" y2="${base + 4}" class="hz"/>`).join("");
       const texts = marks.map((m) => `<div class="ht r${m.row}" style="left:${pct(m.ts)}%">${m.l} ${this._hm(m.ts)}</div>`).join("");
       const nowEl = sunEl ?? sunElevation(now, lat, lon), nx = sx(now), ny = sy(nowEl);
+      const mEl = moon.length ? (moonEl ?? moonElevation(now, lat, lon)) : null;
+      const moonDot = mEl != null && mEl > 0
+        ? `<svg class="moondot" style="left:${pct(now)}%;top:${((sy(mEl) / H) * 90).toFixed(1)}px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" class="moondark"/><path d="${moonPath(12, 12, 10, phaseVal)}" class="moonlit"/></svg>`
+        : "";
       horizon = `
 <div class="hwrap">
 <svg class="horizon" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
@@ -374,6 +378,7 @@ class HaCompassCard extends HTMLElement {
   ${ticks}
   <line x1="${nx.toFixed(1)}" y1="0" x2="${nx.toFixed(1)}" y2="${base}" class="now"/>
 </svg>
+${moonDot}
 <div class="nowdot${nowEl > 0 ? "" : " below"}" style="left:${pct(now)}%;top:${((sy(nowEl) / H) * 90).toFixed(1)}px"></div>
 <div class="htexts">${texts}</div>
 </div>`;
@@ -420,6 +425,8 @@ class HaCompassCard extends HTMLElement {
   .horizon * { vector-effect: non-scaling-stroke; }
   .nowdot { position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--sun);
             border: 2px solid var(--card-background-color, #fff); box-sizing: border-box; }
+  .moondot { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; overflow: visible; }
+  .moondot .moondark { opacity: .6; stroke: var(--card-background-color, #fff); stroke-width: 2; paint-order: stroke; }
   .nowdot.below { background: none; border: 2px dashed var(--sun); }
   .htexts { position: relative; height: 34px; }
   .htexts .ht { position: absolute; transform: translateX(-50%); white-space: nowrap; }
