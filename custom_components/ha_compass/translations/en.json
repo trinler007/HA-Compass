@@ -142,6 +142,9 @@
       },
       "solar_taschen_ausnutzung": {
         "name": "Portable panels utilisation"
+      },
+      "solar_dach_ertrag_morgen": {
+        "name": "Roof PV yield tomorrow (clear sky)"
       }
     },
     "select": {

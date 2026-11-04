@@ -142,6 +142,9 @@
       },
       "solar_taschen_ausnutzung": {
         "name": "Solartaschen Ausnutzung"
+      },
+      "solar_dach_ertrag_morgen": {
+        "name": "Solar Dach Ertrag morgen (klar)"
       }
     },
     "select": {
