@@ -3,7 +3,7 @@
  * Teil von HA-Compass (Apache-2.0). Sonnen-/Mondberechnung: SunCalc-Port
  * (BSD-2-Clause, © 2014 Vladimir Agafonkin) – siehe NOTICE.
  */
-const CARD_VERSION = "0.5.1";
+const CARD_VERSION = "0.6.0";
 
 /* ------------------------------------------------------------ Astronomie (SunCalc) */
 const RAD = Math.PI / 180, DAY_MS = 86400000, J1970 = 2440588, J2000 = 2451545, E = RAD * 23.4397;
@@ -36,6 +36,8 @@ const T = {
     bow: "vom Bug", dawn: "Dämmerung", noon: "Mittag", dusk: "Dämmerung", night: "Nacht",
     view_vehicle: "Fahrzeug dreht", view_ring: "Ring dreht", unavailable: "nicht verfügbar",
     dirs: ["N","NNO","NO","ONO","O","OSO","SO","SSO","S","SSW","SW","WSW","W","WNW","NW","NNW"], cardinals: ["N","O","S","W"],
+    solar_roof: "Solar Dach", solar_tomorrow: "Solar morgen", mobile: "Solartaschen", mobile_tomorrow: "Solartaschen morgen",
+    clear: "klar", clouds: "Wolken", rest_today: "heute noch", position: "Lage", vs_level: "ggü. waagerecht",
     shadeText: { links: "Fahrerseite", rechts: "Beifahrerseite", front: "Front", heck: "Heck", keine: "–" },
     phases: { neumond: "Neumond", zunehmende_sichel: "Zunehmende Sichel", erstes_viertel: "Erstes Viertel",
       zunehmender_mond: "Zunehmender Mond", vollmond: "Vollmond", abnehmender_mond: "Abnehmender Mond",
@@ -46,6 +48,8 @@ const T = {
     bow: "of bow", dawn: "Dawn", noon: "Noon", dusk: "Dusk", night: "Night",
     view_vehicle: "Vehicle rotates", view_ring: "Ring rotates", unavailable: "unavailable",
     dirs: ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"], cardinals: ["N","E","S","W"],
+    solar_roof: "Solar roof", solar_tomorrow: "Solar tomorrow", mobile: "Portable panels", mobile_tomorrow: "Portable panels tomorrow",
+    clear: "clear", clouds: "clouds", rest_today: "rest of today", position: "Attitude", vs_level: "vs. level",
     shadeText: { links: "Driver side", rechts: "Passenger side", front: "Front", heck: "Rear", keine: "–" },
     phases: { neumond: "New moon", zunehmende_sichel: "Waxing crescent", erstes_viertel: "First quarter",
       zunehmender_mond: "Waxing gibbous", vollmond: "Full moon", abnehmender_mond: "Waning gibbous",
@@ -61,6 +65,10 @@ const E_ = {
   moonIllum: "sensor.ha_compass_mond_beleuchtung", moonPhase: "sensor.ha_compass_mond_phase",
   moonRise: "sensor.ha_compass_mondaufgang", moonSet: "sensor.ha_compass_monduntergang",
   rel: "sensor.ha_compass_sonne_relativ", shade: "sensor.ha_compass_schattenseite", view: "select.ha_compass_ansicht",
+  pvExp: "sensor.ha_compass_solar_dach_erwartet", pvPr: "sensor.ha_compass_solar_dach_performance",
+  pvGain: "sensor.ha_compass_solar_dach_neigungsgewinn", pvToday: "sensor.ha_compass_solar_dach_ertrag_heute",
+  pvTomorrow: "sensor.ha_compass_solar_dach_ertrag_morgen",
+  mbTilt: "sensor.ha_compass_solar_taschen_neigung", mbUse: "sensor.ha_compass_solar_taschen_ausnutzung",
 };
 
 const fmt = (n, d = 0) => (n == null || isNaN(n) ? "–" : Number(n).toFixed(d));
@@ -137,7 +145,7 @@ class HaCompassCard extends HTMLElement {
         { type: "expandable", name: "", title: "Infospalte", flatten: true, schema: [
           { type: "grid", name: "", schema: [
             bool("show_info"), bool("show_heading"), bool("show_sun_info"), bool("show_moon_info"),
-            bool("show_shade"), bool("show_view_button"),
+            bool("show_shade"), bool("show_view_button"), bool("show_solar"), bool("show_mobile"),
           ] },
         ] },
         { type: "expandable", name: "", title: "Horizontverlauf", flatten: true, schema: [
@@ -152,6 +160,7 @@ class HaCompassCard extends HTMLElement {
         vehicle_image: "Eigenes Fahrzeugbild (URL, Front oben)",
         show_info: "Infospalte", show_heading: "Ausrichtung", show_sun_info: "Sonne", show_moon_info: "Mond",
         show_shade: "Schatten", show_view_button: "Umschalter Ansicht",
+        show_solar: "Solar Dach", show_mobile: "Solartaschen",
         show_horizon: "Horizontverlauf", show_moon_path: "Mondverlauf",
       }[s.name]),
     };
@@ -162,7 +171,7 @@ class HaCompassCard extends HTMLElement {
     show_compass: true, show_vehicle: true, show_ticks: true, show_cardinals: true,
     show_sun: true, show_sun_path: true, show_moon: true, show_bow_marker: true,
     show_info: true, show_heading: true, show_sun_info: true, show_moon_info: true,
-    show_shade: true, show_view_button: true,
+    show_shade: true, show_view_button: true, show_solar: true, show_mobile: true,
     show_horizon: true, show_moon_path: true,
   };
 
@@ -197,6 +206,52 @@ class HaCompassCard extends HTMLElement {
   _num(id) { const s = this._hass?.states[id]; const v = s ? parseFloat(s.state) : NaN; return isNaN(v) ? null : v; }
   _time(id) { const s = this._hass?.states[id]; const v = s ? Date.parse(s.state) : NaN; return isNaN(v) ? null : v; }
   _attr(id, a) { return this._hass?.states[id]?.attributes?.[a]; }
+
+  /* Zahl im Format der HA-Sprache (Dezimalkomma im Deutschen) */
+  _n(v, d = 0) {
+    if (v == null || isNaN(v)) return "–";
+    const lang = this._hass?.locale?.language || "de";
+    return Number(v).toLocaleString(lang, { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+
+  /* Solarspalte: tagsüber Ist/erwartet, nachts Prognose für morgen; Solartaschen-Empfehlung */
+  _solarBlock(t, sunEl, heading) {
+    const cfg = this._config;
+    if (!this._hass.states[E_.pvTomorrow]) return "";
+    const day = sunEl != null && sunEl > 0;
+    const gain = this._num(E_.pvGain);
+    const gainTxt = gain == null ? "" :
+      `<div class="sub">${t.position} <span class="${gain >= 0 ? "pos" : "neg"}">${gain > 0 ? "+" : ""}${this._n(gain, 1)} %</span> ${t.vs_level}</div>`;
+    let roof = "";
+    if (cfg.show_solar) {
+      if (day) {
+        const exp = this._num(E_.pvExp), pr = this._num(E_.pvPr), act = this._attr(E_.pvPr, "ist_leistung");
+        const wx = this._attr(E_.pvExp, "mit_bewoelkung"), rest = this._attr(E_.pvToday, "rest_heute");
+        roof = `<div class="lbl">${t.solar_roof}</div>
+  <div class="sbig">${act != null ? `${this._n(act)} W` : `${this._n(exp)} W`}${pr != null ? `<span class="spr"> · ${this._n(pr)} %</span>` : ""}</div>
+  <div class="sub">${act != null ? `${t.clear} ${this._n(exp)} W` : t.clear}${wx != null ? ` · ${t.clouds} ${this._n(wx)} W` : ""}</div>
+  ${rest != null ? `<div class="sub">${t.rest_today} ${this._n(rest, 1)} kWh</div>` : ""}${gainTxt}`;
+      } else {
+        const tm = this._num(E_.pvTomorrow), wx = this._attr(E_.pvTomorrow, "mit_bewoelkung");
+        roof = `<div class="lbl">${t.solar_tomorrow}</div>
+  <div class="sbig">${this._n(tm, 1)} kWh</div>
+  <div class="sub">${t.clear}${wx != null ? ` · ${t.clouds} ${this._n(wx, 1)} kWh` : ""}</div>${gainTxt}`;
+      }
+    }
+    let mob = "";
+    const mt = this._num(E_.mbTilt);
+    if (cfg.show_mobile && mt != null) {
+      const az = this._attr(E_.mbTilt, "azimut"), rel = this._attr(E_.mbTilt, "relativ_zum_bug");
+      const kwh = this._attr(E_.mbTilt, "ertrag"), forTxt = this._attr(E_.mbTilt, "gilt_fuer");
+      const use = this._num(E_.mbUse), act = this._attr(E_.mbUse, "ist_leistung");
+      const dir = az == null ? "" : t.dirs[Math.floor(((az % 360) + 11.25) / 22.5) % 16];
+      mob = `<div class="lbl smt">${forTxt === "morgen" ? t.mobile_tomorrow : t.mobile}</div>
+  <div class="row"><b>${this._n(mt)}°</b> · ${this._n(az)}° ${dir}</div>
+  ${rel != null ? `<div class="sub">${this._n(Math.abs(rel))}° ${rel > 0 ? t.rel_r : t.rel_l} ${t.bow}</div>` : ""}
+  <div class="sub">${kwh != null ? `${this._n(kwh, 1)} kWh` : ""}${day && act != null && act > 0 ? ` · ${this._n(act)} W${use != null ? ` (${this._n(use)} %)` : ""}` : ""}</div>`;
+    }
+    return roof || mob ? `<div class="icol solar">${roof}${mob}</div>` : "";
+  }
 
   _hm(ts) {
     if (ts == null) return "–";
@@ -324,9 +379,10 @@ class HaCompassCard extends HTMLElement {
     const dir = heading == null ? "" : t.dirs[Math.floor(((h % 360) + 11.25) / 22.5) % 16];
     const relTxt = rel == null || sunEl == null || sunEl <= 0 ? "" :
       `${t.sun} ${fmt(Math.abs(rel))}° ${rel > 0 ? t.rel_r : t.rel_l} ${t.bow}`;
-    const showInfo = cfg.show_info && (cfg.show_heading || cfg.show_sun_info || cfg.show_moon_info || cfg.show_shade || cfg.show_view_button);
+    const solar = cfg.show_info ? this._solarBlock(t, sunEl, heading) : "";
+    const showInfo = cfg.show_info && (cfg.show_heading || cfg.show_sun_info || cfg.show_moon_info || cfg.show_shade || cfg.show_view_button || solar);
     const info = !showInfo ? "" : `
-<div class="info">
+<div class="info"><div class="icols"><div class="icol">
   ${cfg.show_heading ? `<div class="lbl">${t.heading}</div>
   <div class="big">${heading == null ? "–" : fmt(((h % 360) + 360) % 360)}<span class="deg">°</span> <span class="dir">${dir}</span></div>` : ""}
   ${cfg.show_sun_info ? `<div class="row"><span class="dot sun"></span>${t.sun} <b>${fmt(sunAz)}°</b> · ${fmt(sunEl)}°</div>
@@ -336,7 +392,7 @@ class HaCompassCard extends HTMLElement {
   <div class="row sub">↑ ${this._hm(this._time(E_.moonRise))} &nbsp; ↓ ${this._hm(this._time(E_.moonSet))}</div>` : ""}
   ${cfg.show_shade && relTxt ? `<div class="shade"><div class="lbl">${t.shade}</div><div class="sv">${t.shadeText[shade] || "–"}</div><div class="sub">${relTxt}</div></div>` : ""}
   ${cfg.show_view_button ? `<button class="view" title="Ansicht umschalten">${mode === "vehicle" ? t.view_vehicle : t.view_ring}</button>` : ""}
-</div>`;
+</div>${solar}</div></div>`;
 
     /* ---------- Horizontverlauf */
     let horizon = "";
@@ -411,6 +467,13 @@ ${moonDot}
   .moon.below { opacity: .45; }
   .bow { fill: var(--primary-text-color); }
   .info { flex: 1; min-width: 0; width: 100%; color: var(--primary-text-color); font-size: 14px; line-height: 1.75; }
+  .icols { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+  .icol { flex: 1 1 190px; min-width: 0; }
+  .icol.solar { flex: 0 1 190px; }
+  .sbig { font-size: 22px; font-weight: 600; line-height: 1.3; }
+  .spr { font-size: 15px; font-weight: 500; color: var(--secondary-text-color); }
+  .smt { margin-top: 10px; }
+  .pos { color: var(--success-color, #43a047); } .neg { color: var(--error-color, #e53935); }
   .lbl { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--secondary-text-color); }
   .big { font-size: 40px; font-weight: 600; line-height: 1.1; margin-bottom: 8px; }
   .deg { font-weight: 400; } .dir { font-size: 22px; color: var(--secondary-text-color); font-weight: 500; }

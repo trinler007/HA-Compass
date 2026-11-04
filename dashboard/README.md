@@ -59,7 +59,7 @@ Sie folgt dem HA-Theme (hell/dunkel) und ordnet sich ab ca. 520 px Kartenbreite 
 
 ```yaml
 type: custom:ha-compass-card
-heading_entity: sensor.camper_kompass_ausrichtung_geografisch
+heading_entity: sensor.kompass_ausrichtung_geografisch
 title: Kompass
 ```
 
@@ -77,13 +77,14 @@ Alle Elemente lassen sich einzeln ein- und ausblenden (Standard: alles an) – i
 | `vehicle_image` | – | eigenes Fahrzeugbild (URL, Front oben) |
 | `show_info` | `true` | Infospalte komplett |
 | `show_heading`, `show_sun_info`, `show_moon_info`, `show_shade`, `show_view_button` | `true` | einzelne Blöcke der Infospalte |
+| `show_solar`, `show_mobile` | `true` | Solarspalte rechts: Dach (tagsüber Ist/erwartet/Performance, nachts Prognose morgen) und Solartaschen-Empfehlung; erscheint nur mit den Solar-Sensoren der Integration |
 | `show_horizon`, `show_moon_path` | `true` | Horizontverlauf, Mondkurve darin |
 
 Beispiel – nur der Ring für eine Unterseite:
 
 ```yaml
 type: custom:ha-compass-card
-heading_entity: sensor.camper_kompass_ausrichtung_geografisch
+heading_entity: sensor.kompass_ausrichtung_geografisch
 show_info: false
 show_horizon: false
 ```
