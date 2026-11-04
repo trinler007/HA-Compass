@@ -3,9 +3,23 @@
     "step": {
       "user": {
         "title": "HA Compass",
-        "description": "Entität mit der geografischen Fahrzeugausrichtung (0–360°).",
+        "description": "Entität der geografischen Ausrichtung (0–360°) und optionale Solardaten. Optionale Entitäten dürfen leer bleiben.",
         "data": {
-          "heading_entity": "Ausrichtung"
+          "heading_entity": "Ausrichtung",
+          "pitch_entity": "Fahrzeugneigung längs (+ = Front höher)",
+          "roll_entity": "Fahrzeugneigung seitlich (+ = Fahrerseite höher)",
+          "roof_wp": "PV-Leistung Dach",
+          "roof_power_entity": "PV-Leistung Dach (Istwert)",
+          "mobile_wp": "PV-Leistung Solartaschen",
+          "mobile_power_entity": "PV-Leistung Solartaschen (Istwert)",
+          "temperature_entity": "Außentemperatur",
+          "weather_entity": "Wetter (Bewölkung)",
+          "system_factor": "Systemfaktor (Verluste)"
+        },
+        "data_description": {
+          "system_factor": "Leitungen, MPPT, Modulstreuung – typisch 80–90 %.",
+          "pitch_entity": "Lage des Fahrzeugs, also nullpunktkorrigiert (z. B. Neigung längs).",
+          "roll_entity": "Lage des Fahrzeugs, also nullpunktkorrigiert (z. B. Neigung seitlich)."
         }
       }
     },
@@ -17,9 +31,23 @@
     "step": {
       "init": {
         "title": "HA Compass",
-        "description": "Entität mit der geografischen Fahrzeugausrichtung (0–360°).",
+        "description": "Entität der geografischen Ausrichtung (0–360°) und optionale Solardaten. Optionale Entitäten dürfen leer bleiben.",
         "data": {
-          "heading_entity": "Ausrichtung"
+          "heading_entity": "Ausrichtung",
+          "pitch_entity": "Fahrzeugneigung längs (+ = Front höher)",
+          "roll_entity": "Fahrzeugneigung seitlich (+ = Fahrerseite höher)",
+          "roof_wp": "PV-Leistung Dach",
+          "roof_power_entity": "PV-Leistung Dach (Istwert)",
+          "mobile_wp": "PV-Leistung Solartaschen",
+          "mobile_power_entity": "PV-Leistung Solartaschen (Istwert)",
+          "temperature_entity": "Außentemperatur",
+          "weather_entity": "Wetter (Bewölkung)",
+          "system_factor": "Systemfaktor (Verluste)"
+        },
+        "data_description": {
+          "system_factor": "Leitungen, MPPT, Modulstreuung – typisch 80–90 %.",
+          "pitch_entity": "Lage des Fahrzeugs, also nullpunktkorrigiert (z. B. Neigung längs).",
+          "roll_entity": "Lage des Fahrzeugs, also nullpunktkorrigiert (z. B. Neigung seitlich)."
         }
       }
     }
@@ -87,6 +115,33 @@
           "heck": "Heck",
           "keine": "Keine (Sonne unter Horizont)"
         }
+      },
+      "solar_dach_einfallswinkel": {
+        "name": "Solar Dach Einfallswinkel"
+      },
+      "solar_dach_erwartet": {
+        "name": "Solar Dach erwartet (klar)"
+      },
+      "solar_dach_neigungsgewinn": {
+        "name": "Solar Dach Neigungsgewinn"
+      },
+      "solar_dach_ertrag_heute": {
+        "name": "Solar Dach Tagesertrag (klar)"
+      },
+      "solar_dach_performance": {
+        "name": "Solar Dach Performance"
+      },
+      "solar_taschen_erwartet": {
+        "name": "Solartaschen möglich (klar)"
+      },
+      "solar_taschen_neigung": {
+        "name": "Solartaschen Neigung empfohlen"
+      },
+      "solar_taschen_ausrichtung": {
+        "name": "Solartaschen Ausrichtung empfohlen"
+      },
+      "solar_taschen_ausnutzung": {
+        "name": "Solartaschen Ausnutzung"
       }
     },
     "select": {

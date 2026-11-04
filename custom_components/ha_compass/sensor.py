@@ -12,7 +12,9 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import DEGREE, PERCENTAGE, STATE_UNAVAILABLE, STATE_UNKNOWN
+from homeassistant.const import (
+    DEGREE, PERCENTAGE, STATE_UNAVAILABLE, STATE_UNKNOWN, UnitOfEnergy, UnitOfPower,
+)
 from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_state_change_event
@@ -49,6 +51,55 @@ def _time(key: str, value_key: str, icon: str, az_key: str | None = None) -> Com
     )
 
 
+def _power(key: str, value_key: str, icon: str, attrs=None) -> CompassSensorDescription:
+    return CompassSensorDescription(
+        key=key, translation_key=key, icon=icon, device_class=SensorDeviceClass.POWER,
+        native_unit_of_measurement=UnitOfPower.WATT, state_class=SensorStateClass.MEASUREMENT,
+        value=lambda d, k=value_key: d[k], attrs=attrs,
+    )
+
+
+def _pct(key: str, value_key: str, icon: str, attrs=None) -> CompassSensorDescription:
+    return CompassSensorDescription(
+        key=key, translation_key=key, icon=icon, native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT, value=lambda d, k=value_key: d[k], attrs=attrs,
+    )
+
+
+def _energy(key: str, value_key: str, icon: str, attrs=None) -> CompassSensorDescription:
+    return CompassSensorDescription(
+        key=key, translation_key=key, icon=icon, device_class=SensorDeviceClass.ENERGY,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR, suggested_display_precision=2,
+        value=lambda d, k=value_key: d[k], attrs=attrs,
+    )
+
+
+SOLAR_SENSORS: tuple[CompassSensorDescription, ...] = (
+    _angle("solar_dach_einfallswinkel", "roof_incidence", "mdi:angle-acute",
+           attrs=lambda d: {"neigung": d["roof_tilt"], "neigung_richtung": d["roof_tilt_az"],
+                            "einstrahlung_w_m2": d["roof_poa"]}),
+    _power("solar_dach_erwartet", "roof_expected", "mdi:solar-power-variant",
+           attrs=lambda d: {"mit_bewoelkung": d["roof_expected_weather"], "bewoelkung": d["cloud"],
+                            "aussentemperatur": d["t_amb"]}),
+    _pct("solar_dach_neigungsgewinn", "roof_gain", "mdi:angle-acute"),
+    _energy("solar_dach_ertrag_heute", "roof_day_kwh", "mdi:solar-power",
+            attrs=lambda d: {"rest_heute": d["roof_rest_kwh"]}),
+    _pct("solar_dach_performance", "roof_pr", "mdi:gauge",
+         attrs=lambda d: {"ist_leistung": d["roof_actual"], "erwartet": d["roof_expected"]}),
+    _power("solar_taschen_erwartet", "mobile_expected", "mdi:solar-panel",
+           attrs=lambda d: {"mit_bewoelkung": d["mobile_expected_weather"],
+                            "neigung_optimal": d["mobile_opt_tilt"], "azimut_optimal": d["mobile_opt_az"]}),
+    _angle("solar_taschen_neigung", "mobile_fix_tilt", "mdi:angle-acute",
+           attrs=lambda d: {"azimut": d["mobile_fix_az"], "relativ_zum_bug": d["mobile_fix_rel"],
+                            "ertrag": d["mobile_fix_kwh"], "ertrag_flach": d["mobile_flat_kwh"],
+                            "gilt_fuer": d["mobile_fix_for"]}),
+    _angle("solar_taschen_ausrichtung", "mobile_fix_az", "mdi:compass-rose",
+           attrs=lambda d: {"relativ_zum_bug": d["mobile_fix_rel"], "gilt_fuer": d["mobile_fix_for"]}),
+    _pct("solar_taschen_ausnutzung", "mobile_pr", "mdi:gauge",
+         attrs=lambda d: {"ist_leistung": d["mobile_actual"], "moeglich": d["mobile_expected"]}),
+)
+
+
 SENSORS: tuple[CompassSensorDescription, ...] = (
     _angle("sonne_azimut", "sun_azimuth", "mdi:sun-compass"),
     _angle("sonne_hoehe", "sun_elevation", "mdi:sun-angle"),
@@ -83,8 +134,8 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     coordinator: CompassCoordinator = entry.runtime_data
-    heading = entry.options.get(CONF_HEADING, entry.data.get(CONF_HEADING, DEFAULT_HEADING))
-    entities: list[SensorEntity] = [CompassSensor(coordinator, d) for d in SENSORS]
+    heading = coordinator.cfg.get(CONF_HEADING) or DEFAULT_HEADING
+    entities: list[SensorEntity] = [CompassSensor(coordinator, d) for d in SENSORS + SOLAR_SENSORS]
     entities += [SunRelativeSensor(coordinator, heading), ShadeSideSensor(coordinator, heading)]
     async_add_entities(entities)
 

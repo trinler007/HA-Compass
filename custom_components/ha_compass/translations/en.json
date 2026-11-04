@@ -3,9 +3,23 @@
     "step": {
       "user": {
         "title": "HA Compass",
-        "description": "Entity with the vehicle's true heading (0–360°).",
+        "description": "Heading entity (0–360°) and optional solar data. Optional entities can be left empty.",
         "data": {
-          "heading_entity": "Heading"
+          "heading_entity": "Heading",
+          "pitch_entity": "Vehicle pitch (+ = front higher)",
+          "roll_entity": "Vehicle roll (+ = driver side higher)",
+          "roof_wp": "Roof PV peak power",
+          "roof_power_entity": "Roof PV power (actual)",
+          "mobile_wp": "Portable panels peak power",
+          "mobile_power_entity": "Portable panels power (actual)",
+          "temperature_entity": "Outside temperature",
+          "weather_entity": "Weather (cloud coverage)",
+          "system_factor": "System factor (losses)"
+        },
+        "data_description": {
+          "system_factor": "Wiring, MPPT and module mismatch, typically 80–90 %.",
+          "pitch_entity": "Vehicle attitude, i.e. zero-corrected (e.g. Neigung längs).",
+          "roll_entity": "Vehicle attitude, i.e. zero-corrected (e.g. Neigung seitlich)."
         }
       }
     },
@@ -17,9 +31,23 @@
     "step": {
       "init": {
         "title": "HA Compass",
-        "description": "Entity with the vehicle's true heading (0–360°).",
+        "description": "Heading entity (0–360°) and optional solar data. Optional entities can be left empty.",
         "data": {
-          "heading_entity": "Heading"
+          "heading_entity": "Heading",
+          "pitch_entity": "Vehicle pitch (+ = front higher)",
+          "roll_entity": "Vehicle roll (+ = driver side higher)",
+          "roof_wp": "Roof PV peak power",
+          "roof_power_entity": "Roof PV power (actual)",
+          "mobile_wp": "Portable panels peak power",
+          "mobile_power_entity": "Portable panels power (actual)",
+          "temperature_entity": "Outside temperature",
+          "weather_entity": "Weather (cloud coverage)",
+          "system_factor": "System factor (losses)"
+        },
+        "data_description": {
+          "system_factor": "Wiring, MPPT and module mismatch, typically 80–90 %.",
+          "pitch_entity": "Vehicle attitude, i.e. zero-corrected (e.g. Neigung längs).",
+          "roll_entity": "Vehicle attitude, i.e. zero-corrected (e.g. Neigung seitlich)."
         }
       }
     }
@@ -87,6 +115,33 @@
           "heck": "Rear",
           "keine": "None (sun below horizon)"
         }
+      },
+      "solar_dach_einfallswinkel": {
+        "name": "Roof PV incidence angle"
+      },
+      "solar_dach_erwartet": {
+        "name": "Roof PV expected (clear sky)"
+      },
+      "solar_dach_neigungsgewinn": {
+        "name": "Roof PV tilt gain"
+      },
+      "solar_dach_ertrag_heute": {
+        "name": "Roof PV yield today (clear sky)"
+      },
+      "solar_dach_performance": {
+        "name": "Roof PV performance"
+      },
+      "solar_taschen_erwartet": {
+        "name": "Portable panels possible (clear sky)"
+      },
+      "solar_taschen_neigung": {
+        "name": "Portable panels recommended tilt"
+      },
+      "solar_taschen_ausrichtung": {
+        "name": "Portable panels recommended azimuth"
+      },
+      "solar_taschen_ausnutzung": {
+        "name": "Portable panels utilisation"
       }
     },
     "select": {

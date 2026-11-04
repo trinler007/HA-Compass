@@ -68,6 +68,23 @@ Gerechnet wird mit der HA-Heimatposition (im Fahrzeug per GPS nachgeführt).
 | `sensor.ha_compass_schattenseite` | `links`, `rechts`, `front`, `heck`, `keine` |
 | `select.ha_compass_ansicht` | `fahrzeug_dreht` / `ring_dreht` |
 
+### Solar
+
+Optional in den Integrationsoptionen: Neigung längs/seitlich des Fahrzeugs (nullpunktkorrigiert), Wp und Istleistung für Dach und Solartaschen,
+Außentemperatur, Wetter (Attribut `cloud_coverage`) und Systemfaktor. Startwerte sind die der NX-01.
+Modell: Klarhimmel-Einstrahlung (Meinel/Haurwitz), Einfallswinkel aus Ausrichtung und Lage, Zelltemperatur (NOCT), Bewölkung nach Kasten-Czeplak.
+
+| Entität | Inhalt |
+| --- | --- |
+| `sensor.ha_compass_solar_dach_einfallswinkel` | Winkel Sonne ↔ Modulnormale; Attribute `neigung`, `neigung_richtung`, `einstrahlung_w_m2` |
+| `sensor.ha_compass_solar_dach_erwartet` | Erwartete Leistung bei klarem Himmel (W); Attribut `mit_bewoelkung` |
+| `sensor.ha_compass_solar_dach_neigungsgewinn` | Mehr-/Minderertrag der aktuellen Fahrzeuglage gegenüber waagerecht (%) |
+| `sensor.ha_compass_solar_dach_ertrag_heute` | Tagesertrag bei klarem Himmel in der aktuellen Lage (kWh); Attribut `rest_heute` |
+| `sensor.ha_compass_solar_dach_performance` | Istleistung / erwartet (%) – Wolken, Schatten, Schmutz, Schnee |
+| `sensor.ha_compass_solar_taschen_erwartet` | Möglich bei optimaler Ausrichtung jetzt (W) |
+| `sensor.ha_compass_solar_taschen_neigung` / `_ausrichtung` | Beste feste Aufstellung für den Rest des Tages (nach Sonnenuntergang: morgen); Attribute `relativ_zum_bug`, `ertrag`, `ertrag_flach` |
+| `sensor.ha_compass_solar_taschen_ausnutzung` | Istleistung / möglich (%) |
+
 ## Voraussetzungen in Home Assistant
 
 | Entität | Zweck |
