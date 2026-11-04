@@ -77,6 +77,7 @@ Alle Elemente lassen sich einzeln ein- und ausblenden (Standard: alles an) – i
 | `vehicle_image` | – | eigenes Fahrzeugbild (URL, Front oben) |
 | `show_info` | `true` | Infospalte komplett |
 | `show_heading`, `show_sun_info`, `show_moon_info`, `show_shade`, `show_view_button` | `true` | einzelne Blöcke der Infospalte |
+| `show_mobile_panel` | `true` | Solartaschen stilisiert in der Kompassrose: empfohlene Richtung (orange Kante = Sonnenseite), Breite nach Neigung |
 | `show_solar`, `show_mobile` | `true` | Solarspalte rechts: Dach (tagsüber Ist/erwartet/Performance, nachts Prognose morgen) und Solartaschen-Empfehlung; erscheint nur mit den Solar-Sensoren der Integration |
 | `show_horizon`, `show_moon_path` | `true` | Horizontverlauf, Mondkurve darin |
 

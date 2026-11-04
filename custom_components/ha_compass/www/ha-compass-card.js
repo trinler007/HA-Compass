@@ -3,7 +3,7 @@
  * Teil von HA-Compass (Apache-2.0). Sonnen-/Mondberechnung: SunCalc-Port
  * (BSD-2-Clause, © 2014 Vladimir Agafonkin) – siehe NOTICE.
  */
-const CARD_VERSION = "0.6.0";
+const CARD_VERSION = "0.6.1";
 
 /* ------------------------------------------------------------ Astronomie (SunCalc) */
 const RAD = Math.PI / 180, DAY_MS = 86400000, J1970 = 2440588, J2000 = 2451545, E = RAD * 23.4397;
@@ -135,7 +135,7 @@ class HaCompassCard extends HTMLElement {
         { type: "expandable", name: "", title: "Kompass", flatten: true, schema: [
           { type: "grid", name: "", schema: [
             bool("show_compass"), bool("show_vehicle"), bool("show_ticks"), bool("show_cardinals"),
-            bool("show_sun"), bool("show_sun_path"), bool("show_moon"), bool("show_bow_marker"),
+            bool("show_sun"), bool("show_sun_path"), bool("show_moon"), bool("show_bow_marker"), bool("show_mobile_panel"),
           ] },
           { name: "tap_action", selector: { select: { mode: "dropdown", options: [
             { value: "toggle_view", label: "Ansicht umschalten" }, { value: "none", label: "Keine" } ] } } },
@@ -155,7 +155,7 @@ class HaCompassCard extends HTMLElement {
       computeLabel: (s) => ({
         heading_entity: "Ausrichtung (Entität)", title: "Titel", view: "Ansicht",
         show_compass: "Kompass", show_vehicle: "Fahrzeug", show_ticks: "Skala", show_cardinals: "Himmelsrichtungen",
-        show_sun: "Sonne", show_sun_path: "Sonnenbahn", show_moon: "Mond", show_bow_marker: "Bug-Markierung (Ring dreht)",
+        show_mobile_panel: "Solartaschen (Empfehlung)", show_sun: "Sonne", show_sun_path: "Sonnenbahn", show_moon: "Mond", show_bow_marker: "Bug-Markierung (Ring dreht)",
         tap_action: "Tippen auf den Kompass", compass_size: "Max. Kompassgröße",
         vehicle_image: "Eigenes Fahrzeugbild (URL, Front oben)",
         show_info: "Infospalte", show_heading: "Ausrichtung", show_sun_info: "Sonne", show_moon_info: "Mond",
@@ -169,7 +169,7 @@ class HaCompassCard extends HTMLElement {
   static DEFAULTS = {
     view: "auto", tap_action: "toggle_view",
     show_compass: true, show_vehicle: true, show_ticks: true, show_cardinals: true,
-    show_sun: true, show_sun_path: true, show_moon: true, show_bow_marker: true,
+    show_sun: true, show_sun_path: true, show_moon: true, show_bow_marker: true, show_mobile_panel: true,
     show_info: true, show_heading: true, show_sun_info: true, show_moon_info: true,
     show_shade: true, show_view_button: true, show_solar: true, show_mobile: true,
     show_horizon: true, show_moon_path: true,
@@ -360,6 +360,24 @@ class HaCompassCard extends HTMLElement {
         <circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="10" class="moondark"/>
         <path d="${moonPath(mx, my, 10, phaseVal)}" class="moonlit"/></g>`;
     }
+    /* Solartaschen: stilisiert neben dem Fahrzeug, Modulfläche zeigt zur empfohlenen Richtung */
+    let panel = "";
+    const pTilt = this._num(E_.mbTilt), pAz = this._attr(E_.mbTilt, "azimut");
+    if (cfg.show_mobile_panel && pTilt != null && pAz != null) {
+      const relA = ((pAz - (heading ?? 0)) % 360 + 360) % 360 * RAD;
+      // Abstand: knapp außerhalb der Fahrzeugkontur (Ellipse 110 × 38), höchstens bis an die Skala
+      const edge = Math.hypot(110 * Math.cos(relA), 38 * Math.sin(relA));
+      const r = Math.min(edge + 24, 128);
+      const [px, py] = pt(pAz, r), [cx, cy] = pt(pAz, edge + 2);
+      const d = Math.max(6, 26 * Math.cos(pTilt * RAD));  // Draufsicht: steiler = schmaler
+      panel = `<g class="mpanel"><title>${t.mobile}: ${fmt(pTilt)}° · ${fmt(pAz)}°</title>
+        <line x1="${cx.toFixed(1)}" y1="${cy.toFixed(1)}" x2="${px.toFixed(1)}" y2="${py.toFixed(1)}" class="mcable"/>
+        <g transform="translate(${px.toFixed(1)} ${py.toFixed(1)}) rotate(${pAz})">
+          <rect x="-22" y="${(-d / 2).toFixed(1)}" width="44" height="${d.toFixed(1)}" rx="1.5" class="mcell"/>
+          <path d="M-7.3 ${(-d / 2).toFixed(1)}v${d.toFixed(1)}M7.3 ${(-d / 2).toFixed(1)}v${d.toFixed(1)}" class="mgrid"/>
+          <line x1="-22" y1="${(-d / 2).toFixed(1)}" x2="22" y2="${(-d / 2).toFixed(1)}" class="medge"/>
+        </g></g>`;
+    }
     const veh = this._config.vehicle_image
       ? `<image href="${this._config.vehicle_image}" x="-60" y="-120" width="120" height="240" preserveAspectRatio="xMidYMid meet"/>`
       : `<g transform="scale(${(220 / 711).toFixed(4)}) translate(-122.5 -349.5)">${VEHICLE_SVG}</g>`;
@@ -372,6 +390,7 @@ class HaCompassCard extends HTMLElement {
     ${cfg.show_sun_path ? sunPath : ""}${cfg.show_ticks ? ticks : ""}${cfg.show_cardinals ? labels : ""}${cfg.show_sun ? sunRay + sunMark : ""}${cfg.show_moon ? moonMark : ""}
   </g>
   ${cfg.show_vehicle ? `<g class="rot" style="transform:rotate(${vehRot}deg)"><g transform="translate(${C} ${C})">${veh}</g></g>` : ""}
+  ${panel ? `<g class="rot" style="transform:rotate(${ringRot}deg)">${panel}</g>` : ""}
   ${mode === "ring" && cfg.show_bow_marker ? `<path d="M${C} ${C - RS - 4}l-8 -11h16z" class="bow"/>` : ""}
 </svg>`;
 
@@ -466,6 +485,10 @@ ${moonDot}
   .moonlit { fill: #e2e8f0; stroke: none; }
   .moon.below { opacity: .45; }
   .bow { fill: var(--primary-text-color); }
+  .mcell { fill: #1b2232; stroke: #c9d0d4; stroke-width: 1.5; }
+  .mgrid { stroke: #4a5a78; stroke-width: 1; }
+  .medge { stroke: var(--amber); stroke-width: 2.5; stroke-linecap: round; }
+  .mcable { stroke: var(--secondary-text-color); stroke-width: 1.2; stroke-dasharray: 2 3; opacity: .8; }
   .info { flex: 1; min-width: 0; width: 100%; color: var(--primary-text-color); font-size: 14px; line-height: 1.75; }
   .icols { display: flex; flex-wrap: wrap; gap: 4px 20px; }
   .icol { flex: 1 1 190px; min-width: 0; }
